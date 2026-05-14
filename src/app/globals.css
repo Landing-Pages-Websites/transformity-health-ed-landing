@@ -1,0 +1,41 @@
+@import "tailwindcss";
+
+:root {
+  /* Transformity Health brand colors */
+  --color-primary: #07403F;       /* Deep teal/green */
+  --color-primary-dark: #052e2d;  /* Darker teal */
+  --color-primary-light: #0d5e5c; /* Lighter teal */
+  --color-gold: #C9A84C;          /* Gold accent */
+  --color-gold-light: #e2c06a;    /* Light gold */
+  --color-cream: #FEF9EE;         /* Warm cream bg */
+  --color-text: #1a1a1a;
+  --color-text-muted: #4a5568;
+}
+
+@theme {
+  --color-primary: #07403F;
+  --color-primary-dark: #052e2d;
+  --color-primary-light: #0d5e5c;
+  --color-secondary: #C9A84C;
+  --color-secondary-light: #e2c06a;
+  --color-cream: #FEF9EE;
+  --font-sans: "Lora", "Georgia", serif;
+  --font-body: "Inter", "Helvetica Neue", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: "Inter", "Helvetica Neue", sans-serif;
+  color: var(--color-text);
+  background: #fff;
+  -webkit-font-smoothing: antialiased;
+}
