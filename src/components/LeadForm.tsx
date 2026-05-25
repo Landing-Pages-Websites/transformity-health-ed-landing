@@ -483,33 +483,45 @@ export function LeadForm({ variant = "hero", headline, subhead }: LeadFormProps)
           can cost several thousand dollars. Financing is available through
           Cherry &amp; CareCredit.
         </p>
-        <select
-          ref={(el) => {
-            fieldRefs.current.investmentReady = el;
-          }}
-          id={id("investmentReady")}
-          name="investmentReady"
-          className={inputCls("investmentReady")}
-          value={data.investmentReady}
-          onChange={(e) => update("investmentReady", e.target.value as InvestmentValue | "")}
-          onBlur={(e) => markTouched("investmentReady", e.target.value)}
-          disabled={submitting}
-          aria-invalid={showErr("investmentReady") || undefined}
-          aria-describedby={
-            showErr("investmentReady")
-              ? `${errId("investmentReady")} ${id("investmentReady")}-help`
-              : `${id("investmentReady")}-help`
-          }
-        >
-          <option value="" disabled>
-            Select an option…
-          </option>
-          {INVESTMENT_OPTIONS.map((o) => (
-            <option key={o.value} value={o.value}>
-              {o.label}
+        <div className="relative">
+          <select
+            ref={(el) => {
+              fieldRefs.current.investmentReady = el;
+            }}
+            id={id("investmentReady")}
+            name="investmentReady"
+            className={`${inputCls("investmentReady")} appearance-none pr-10`}
+            value={data.investmentReady}
+            onChange={(e) => update("investmentReady", e.target.value as InvestmentValue | "")}
+            onBlur={(e) => markTouched("investmentReady", e.target.value)}
+            disabled={submitting}
+            aria-invalid={showErr("investmentReady") || undefined}
+            aria-describedby={
+              showErr("investmentReady")
+                ? `${errId("investmentReady")} ${id("investmentReady")}-help`
+                : `${id("investmentReady")}-help`
+            }
+          >
+            <option value="" disabled>
+              Select an option…
             </option>
-          ))}
-        </select>
+            {INVESTMENT_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
+          </select>
+          <div
+            aria-hidden="true"
+            className={`pointer-events-none absolute inset-y-0 right-3 flex items-center ${
+              isHero ? "text-gray-500" : "text-white/70"
+            }`}
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+        </div>
         {showErr("investmentReady") && (
           <p id={errId("investmentReady")} role="alert" aria-live="polite" className={errCls}>
             {errors.investmentReady}

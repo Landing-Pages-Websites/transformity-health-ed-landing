@@ -47,18 +47,14 @@ export default function RootLayout({
           }}
         />
 
-        {/* Meta Pixel */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','${PIXEL_ID}');fbq('track','PageView');`,
-          }}
-        />
-
-        {/* MegaTag config */}
+        {/* MegaTag config — pixelId here lets the optimizer load Meta Pixel.
+            Per QA Rubric 4: do NOT also inject a manual fbq script; MegaTag
+            handles Pixel init + PageView, and form code can still call
+            window.fbq('track','Lead') once MegaTag has booted it. */}
         <meta name="mega-site-id" content={SITE_ID} />
         <script
           dangerouslySetInnerHTML={{
-            __html: `window.MEGA_TAG_CONFIG={siteKey:"${SITE_KEY}",siteId:"${SITE_ID}"};window.API_ENDPOINT="https://optimizer.gomega.ai";window.TRACKING_API_ENDPOINT="https://events-api.gomega.ai";`,
+            __html: `window.MEGA_TAG_CONFIG={siteKey:"${SITE_KEY}",siteId:"${SITE_ID}",gtmId:"${GTM_ID}",pixelId:"${PIXEL_ID}"};window.API_ENDPOINT="https://optimizer.gomega.ai";window.TRACKING_API_ENDPOINT="https://events-api.gomega.ai";`,
           }}
         />
         <script
@@ -78,7 +74,8 @@ export default function RootLayout({
             style={{ display: "none", visibility: "hidden" }}
           />
         </noscript>
-        {/* Meta Pixel noscript */}
+        {/* Meta Pixel noscript fallback (PageView tracking pixel only;
+            the JS Pixel is loaded by MegaTag from MEGA_TAG_CONFIG.pixelId) */}
         <noscript>
           <img
             height="1"
