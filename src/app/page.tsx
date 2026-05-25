@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect, useRef, FormEvent, useId } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import useMegaLeadForm from "@/hooks/useMegaLeadForm";
+import LeadForm from "@/components/LeadForm";
 
-/* ─── Intersection observer reveal ─── */
+/* ─── Reveal on scroll ─── */
 function Reveal({
   children,
   className = "",
@@ -17,17 +17,21 @@ function Reveal({
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) setVisible(true);
+      },
       { threshold: 0.08 }
     );
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
+    if (ref.current) obs.observe(ref.current);
+    return () => obs.disconnect();
   }, []);
   return (
     <div
       ref={ref}
-      className={`transition-all duration-700 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"} ${className}`}
+      className={`transition-all duration-700 ease-out ${
+        visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+      } ${className}`}
       style={{ transitionDelay: `${delay}ms` }}
     >
       {children}
@@ -35,331 +39,72 @@ function Reveal({
   );
 }
 
-/* ─── Phone helpers ─── */
-function formatPhone(value: string): string {
-  const digits = value.replace(/\D/g, "").slice(0, 10);
-  if (digits.length === 0) return "";
-  if (digits.length <= 3) return `(${digits}`;
-  if (digits.length <= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
-  return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
-}
-
-function isValidPhone(value: string): { valid: boolean; error: string } {
-  const digits = value.replace(/\D/g, "");
-  const normalized = digits.length === 11 && digits[0] === "1" ? digits.slice(1) : digits;
-  if (normalized.length !== 10) return { valid: false, error: "Please enter a valid 10-digit phone number" };
-  const area = normalized.slice(0, 3);
-  const exchange = normalized.slice(3, 6);
-  if (area[0] === "0" || area[0] === "1") return { valid: false, error: "Area code cannot start with 0 or 1" };
-  if (exchange[0] === "0" || exchange[0] === "1") return { valid: false, error: "Invalid phone number format" };
-  if (["211","311","411","511","611","711","811","911"].includes(area)) return { valid: false, error: "Service codes are not valid phone numbers" };
-  if (exchange === "555") return { valid: false, error: "555 numbers are reserved" };
-  if (["800","888","877","866","855","844","833","822","900"].includes(area)) return { valid: false, error: "Please enter a personal phone number" };
-  if (new Set(normalized).size === 1) return { valid: false, error: "Please enter a real phone number" };
-  if (["1234567890","0987654321"].includes(normalized)) return { valid: false, error: "Please enter a real phone number" };
-  return { valid: true, error: "" };
-}
-
-function isValidEmail(v: string): boolean { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
-
-/* ─── SVG Icons ─── */
-const PhoneIcon = () => (
-  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+/* ─── Icons ─── */
+const PhoneIcon = ({ className = "w-5 h-5" }: { className?: string }) => (
+  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
     <path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
   </svg>
 );
-
-const CheckIcon = ({ className = "w-5 h-5 text-amber-400 shrink-0 mt-0.5" }) => (
-  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+const CheckIcon = ({ className = "w-5 h-5" }: { className?: string }) => (
+  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5} aria-hidden="true">
     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
   </svg>
 );
-
-const StarIcon = () => (
-  <svg className="w-5 h-5 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+const XIcon = ({ className = "w-5 h-5" }: { className?: string }) => (
+  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5} aria-hidden="true">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+  </svg>
+);
+const StarIcon = ({ className = "w-5 h-5 text-amber-400" }: { className?: string }) => (
+  <svg className={className} fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
     <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.967a1 1 0 00.95.69h4.178c.969 0 1.371 1.24.588 1.81l-3.385 2.46a1 1 0 00-.364 1.118l1.287 3.966c.3.921-.755 1.688-1.54 1.118L10 15.347l-3.951 2.71c-.784.57-1.838-.197-1.539-1.118l1.287-3.966a1 1 0 00-.364-1.118L2.048 9.394c-.783-.57-.38-1.81.588-1.81h4.178a1 1 0 00.95-.69L9.049 2.927z" />
   </svg>
 );
-
-const ShieldCheck = () => (
-  <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+const ShieldIcon = () => (
+  <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} aria-hidden="true">
     <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
   </svg>
 );
-
 const BoltIcon = () => (
-  <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+  <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} aria-hidden="true">
     <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
   </svg>
 );
-
 const HeartIcon = () => (
-  <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+  <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} aria-hidden="true">
     <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
   </svg>
 );
-
 const MicroscopeIcon = () => (
-  <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+  <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} aria-hidden="true">
     <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23-.693L5 14.5m14.8.8l1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0112 21a48.25 48.25 0 01-8.135-.687c-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
   </svg>
 );
 
-const ArrowRight = () => (
-  <svg className="w-5 h-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-  </svg>
-);
-
-const LockIcon = () => (
-  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-  </svg>
-);
-
-/* ─── Lead form component ─── */
-interface FormState {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  investmentReady: string;
-}
-
-interface FormErrors {
-  firstName?: string;
-  lastName?: string;
-  email?: string;
-  phone?: string;
-  investmentReady?: string;
-}
-
-function LeadForm({ variant = "hero" }: { variant?: "hero" | "inline" }) {
-  const fid = useId();
-  const id = (k: string) => `${k}-${fid}`;
-
-  const { submit } = useMegaLeadForm();
-  const [form, setForm] = useState<FormState>({
-    firstName: "", lastName: "", email: "", phone: "", investmentReady: "",
-  });
-  const [errors, setErrors] = useState<FormErrors>({});
-  const [submitting, setSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-
-  const validate = (): FormErrors => {
-    const e: FormErrors = {};
-    if (!form.firstName.trim()) e.firstName = "First name is required";
-    if (!form.lastName.trim()) e.lastName = "Last name is required";
-    if (!form.email.trim()) e.email = "Email is required";
-    else if (!isValidEmail(form.email)) e.email = "Please enter a valid email";
-    const phoneCheck = isValidPhone(form.phone);
-    if (!form.phone.trim()) e.phone = "Phone number is required";
-    else if (!phoneCheck.valid) e.phone = phoneCheck.error;
-    if (!form.investmentReady) e.investmentReady = "Please select an option";
-    return e;
-  };
-
-  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const raw = e.target.value;
-    const digits = raw.replace(/\D/g, "");
-    if (/[a-zA-Z]/.test(raw)) return;
-    setForm((f) => ({ ...f, phone: formatPhone(digits) }));
-    if (errors.phone) setErrors((er) => ({ ...er, phone: undefined }));
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setForm((f) => ({ ...f, [name]: value }));
-    if (errors[name as keyof FormErrors]) setErrors((er) => ({ ...er, [name]: undefined }));
-  };
-
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    const errs = validate();
-    if (Object.keys(errs).length > 0) { setErrors(errs); return; }
-    setSubmitting(true);
-    try {
-      await submit({
-        firstName: form.firstName.trim(),
-        lastName: form.lastName.trim(),
-        email: form.email.trim(),
-        phone: form.phone.replace(/\D/g, ""),
-        investmentReady: form.investmentReady,
-        formId: "transformity-ed-consultation",
-      });
-
-      // Fire GTM form_submission event
-      if (typeof window !== "undefined") {
-        window.dataLayer = window.dataLayer || [];
-        window.dataLayer.push({ event: "form_submission", form_id: "transformity-ed-consultation", value: 0 });
-        // Fire Meta Pixel Lead event
-        if (typeof window.fbq === "function") {
-          window.fbq("track", "Lead");
-        }
-      }
-      await new Promise((r) => setTimeout(r, 500));
-      setSubmitted(true);
-    } catch {
-      setErrors({ firstName: "Something went wrong. Please try again or call us." });
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  if (submitted) {
-    return (
-      <div className={`${variant === "hero" ? "bg-white rounded-2xl shadow-2xl p-8" : "bg-[#07403F] rounded-2xl p-8"} text-center`}>
-        <div className="w-16 h-16 rounded-full bg-amber-50 flex items-center justify-center mx-auto mb-4">
-          <CheckIcon className="w-8 h-8 text-amber-500" />
-        </div>
-        <h3 className={`text-2xl font-bold mb-3 ${variant === "hero" ? "text-[#07403F]" : "text-white"}`}>
-          You&rsquo;re All Set
-        </h3>
-        <p className={`${variant === "hero" ? "text-gray-600" : "text-white/80"}`}>
-          Thank you, {form.firstName}. Our team will reach out within one business day to schedule your consultation with Dr. Uslar.
-        </p>
-        <p className={`mt-4 text-sm font-medium ${variant === "hero" ? "text-[#07403F]" : "text-amber-300"}`}>
-          Need faster help? Call <a href="tel:9177044886" className="underline">917-704-4886</a>
-        </p>
-      </div>
-    );
-  }
-
-  const isHero = variant === "hero";
-  const inputBase = "w-full px-4 py-3 rounded-lg text-gray-900 border focus:outline-none focus:ring-2 focus:ring-amber-400 text-sm";
-  const inputClass = `${inputBase} ${isHero ? "border-gray-200 bg-white" : "border-white/20 bg-white/10 text-white placeholder:text-white/50 focus:bg-white/20"}`;
-  const labelClass = `block text-sm font-medium mb-1 ${isHero ? "text-gray-700" : "text-white/90"}`;
-  const errorClass = "text-red-400 text-xs mt-1";
-
-  return (
-    <form onSubmit={handleSubmit} className={`${isHero ? "bg-white rounded-2xl shadow-2xl p-6 md:p-8" : "bg-[#07403F] rounded-2xl p-6 md:p-8"}`}>
-      <h3 className={`text-xl font-bold mb-1 ${isHero ? "text-[#07403F]" : "text-white"}`}>
-        Request a Free Consultation
-      </h3>
-      <p className={`text-sm mb-6 ${isHero ? "text-gray-500" : "text-white/70"}`}>
-        Speak directly with Dr. Uslar &mdash; no sales staff, no pressure.
-      </p>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-        <div>
-          <label htmlFor={id("firstName")} className={labelClass}>First Name *</label>
-          <input
-            id={id("firstName")}
-            name="firstName"
-            type="text"
-            required
-            placeholder="John"
-            value={form.firstName}
-            onChange={handleChange}
-            className={`${inputClass} ${errors.firstName ? "border-red-400" : ""}`}
-          />
-          {errors.firstName && <p className={errorClass}>{errors.firstName}</p>}
-        </div>
-        <div>
-          <label htmlFor={id("lastName")} className={labelClass}>Last Name *</label>
-          <input
-            id={id("lastName")}
-            name="lastName"
-            type="text"
-            required
-            placeholder="Smith"
-            value={form.lastName}
-            onChange={handleChange}
-            className={`${inputClass} ${errors.lastName ? "border-red-400" : ""}`}
-          />
-          {errors.lastName && <p className={errorClass}>{errors.lastName}</p>}
-        </div>
-      </div>
-
-      <div className="mb-4">
-        <label htmlFor={id("email")} className={labelClass}>Email Address *</label>
-        <input
-          id={id("email")}
-          name="email"
-          type="email"
-          required
-          placeholder="john@example.com"
-          value={form.email}
-          onChange={handleChange}
-          className={`${inputClass} ${errors.email ? "border-red-400" : ""}`}
-        />
-        {errors.email && <p className={errorClass}>{errors.email}</p>}
-      </div>
-
-      <div className="mb-4">
-        <label htmlFor={id("phone")} className={labelClass}>Phone Number *</label>
-        <input
-          id={id("phone")}
-          name="phone"
-          type="tel"
-          inputMode="tel"
-          required
-          pattern="[0-9\(\)\-\s]+"
-          placeholder="(305) 555-0100"
-          value={form.phone}
-          onChange={handlePhoneChange}
-          className={`${inputClass} ${errors.phone ? "border-red-400" : ""}`}
-        />
-        {errors.phone && <p className={errorClass}>{errors.phone}</p>}
-      </div>
-
-      <div className="mb-6">
-        <label htmlFor={id("investmentReady")} className={labelClass}>
-          ED treatments at our clinic are a cash-pay investment that can cost up to several thousand dollars. Are you open to investing in a personalized, root-cause solution to restore your sexual health? (Financing available through Cherry &amp; CareCredit) *
-        </label>
-        <select
-          id={id("investmentReady")}
-          name="investmentReady"
-          required
-          value={form.investmentReady}
-          onChange={handleChange}
-          className={`${inputClass} ${errors.investmentReady ? "border-red-400" : ""}`}
-        >
-          <option value="" disabled>Select an option...</option>
-          <option value="Yes, I'm ready to invest in a lasting solution">Yes, I&apos;m ready to invest in a lasting solution</option>
-          <option value="Yes, but I'd need financing options">Yes, but I&apos;d need financing options</option>
-          <option value="No, I'm looking for a lower-cost option">No, I&apos;m looking for a lower-cost option</option>
-        </select>
-        {errors.investmentReady && <p className={errorClass}>{errors.investmentReady}</p>}
-      </div>
-
-      <button
-        type="submit"
-        disabled={submitting}
-        className="w-full bg-amber-500 hover:bg-amber-400 text-white font-bold py-4 px-6 rounded-lg text-base transition-all duration-200 disabled:opacity-60 flex items-center justify-center cursor-pointer"
-      >
-        {submitting ? "Submitting..." : "Request My Free Consultation"}
-        {!submitting && <ArrowRight />}
-      </button>
-
-      <p className={`text-xs text-center mt-3 flex items-center justify-center gap-1 ${isHero ? "text-gray-400" : "text-white/50"}`}>
-        <LockIcon />
-        100% confidential &mdash; your information is never shared
-      </p>
-    </form>
-  );
-}
-
-/* ─── Sticky CTA bar (mobile) ─── */
+/* ─── Sticky CTA bar (mobile only) ─── */
 function StickyCTA() {
   const [visible, setVisible] = useState(false);
   useEffect(() => {
-    const onScroll = () => setVisible(window.scrollY > 400);
+    const onScroll = () => setVisible(window.scrollY > 600);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
   return (
-    <div className={`fixed bottom-0 left-0 right-0 z-50 md:hidden transition-transform duration-300 ${visible ? "translate-y-0" : "translate-y-full"}`}>
-      <div className="bg-[#07403F] border-t border-amber-500/30 px-4 py-3 flex gap-3">
+    <div
+      className={`fixed bottom-0 left-0 right-0 z-50 md:hidden transition-transform duration-300 ${
+        visible ? "translate-y-0" : "translate-y-full"
+      }`}
+    >
+      <div className="bg-[#07403F] border-t border-amber-500/30 px-4 py-3 flex gap-3 shadow-2xl">
         <a
           href="tel:9177044886"
           className="flex-1 flex items-center justify-center gap-2 bg-white text-[#07403F] font-bold py-3 rounded-lg text-sm"
         >
-          <PhoneIcon />
+          <PhoneIcon className="w-4 h-4" />
           Call Now
         </a>
         <a
-          href="#consultation-form"
+          href="#consultation"
           className="flex-1 flex items-center justify-center gap-2 bg-amber-500 text-white font-bold py-3 rounded-lg text-sm"
         >
           Free Consult
@@ -369,316 +114,376 @@ function StickyCTA() {
   );
 }
 
-/* ─── Main page ─── */
+/* ─── Page ─── */
 export default function Page() {
   return (
     <>
       <StickyCTA />
 
-      {/* Navigation */}
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-gray-100 shadow-sm">
+      {/* ── Header ── */}
+      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-gray-100 shadow-sm">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="relative h-10 w-44">
-            <Image src="/logo.png" alt="Transformity Health" fill className="object-contain object-left" priority />
-          </div>
-          <div className="hidden md:flex items-center gap-4">
+          <a href="#hero" className="relative h-9 sm:h-10 w-40 sm:w-48 block">
+            <Image
+              src="/logo.png"
+              alt="Transformity Health"
+              fill
+              className="object-contain object-left"
+              priority
+              sizes="200px"
+            />
+          </a>
+          <div className="flex items-center gap-3 sm:gap-4">
             <a
               href="tel:9177044886"
-              className="flex items-center gap-2 text-[#07403F] font-medium text-sm hover:text-amber-600 transition-colors"
+              className="hidden sm:flex items-center gap-2 text-[#07403F] font-semibold text-sm hover:text-amber-600 transition-colors"
             >
-              <PhoneIcon />
+              <PhoneIcon className="w-4 h-4" />
               917-704-4886
             </a>
             <a
-              href="#consultation-form"
-              className="bg-amber-500 hover:bg-amber-400 text-white font-bold px-5 py-2.5 rounded-lg text-sm transition-colors"
+              href="#consultation"
+              className="bg-amber-500 hover:bg-amber-400 text-white font-bold px-4 sm:px-5 py-2 sm:py-2.5 rounded-lg text-sm transition-colors"
             >
               Free Consultation
             </a>
           </div>
-          <a
-            href="tel:9177044886"
-            className="md:hidden flex items-center gap-1 text-[#07403F] font-medium text-sm"
-          >
-            <PhoneIcon />
-            Call
-          </a>
         </div>
       </header>
 
       <main>
-        {/* ─── Hero Section ─── */}
-        <section className="relative bg-[#07403F] overflow-hidden">
-          <div className="absolute inset-0 opacity-20 bg-[url('/treatment-1.jpg')] bg-cover bg-center bg-no-repeat" />
-          <div className="relative max-w-6xl mx-auto px-4 py-16 md:py-24">
-            <div className="grid md:grid-cols-2 gap-12 items-center">
-              <div>
-                <div className="inline-flex items-center gap-2 bg-amber-500/20 border border-amber-400/30 rounded-full px-4 py-1.5 mb-6">
-                  <span className="w-2 h-2 rounded-full bg-amber-400"></span>
-                  <span className="text-amber-300 text-xs font-semibold tracking-wide uppercase">Harvard-Trained Physician</span>
+        {/* ── Hero ── */}
+        <section id="hero" className="relative bg-[#07403F] overflow-hidden">
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 opacity-[0.07] pointer-events-none"
+            style={{
+              backgroundImage:
+                "radial-gradient(circle at 20% 20%, rgba(201,168,76,0.45) 0%, transparent 45%), radial-gradient(circle at 85% 70%, rgba(13,94,92,0.7) 0%, transparent 50%)",
+            }}
+          />
+          <div className="relative max-w-6xl mx-auto px-4 py-14 md:py-20">
+            <div className="grid md:grid-cols-12 gap-10 md:gap-14 items-center">
+              <div className="md:col-span-7">
+                <div className="inline-flex items-center gap-2 bg-amber-500/15 border border-amber-400/30 rounded-full px-3.5 py-1.5 mb-6">
+                  <span className="w-2 h-2 rounded-full bg-amber-400" />
+                  <span className="text-amber-300 text-xs font-semibold tracking-wider uppercase">
+                    Harvard-Trained Physician • Hallandale Beach, FL
+                  </span>
                 </div>
-                <h1 className="text-white text-4xl md:text-5xl font-bold leading-tight mb-6" style={{ fontFamily: "Lora, Georgia, serif" }}>
-                  ED Isn&apos;t Just About<br />
-                  <span className="text-amber-400">Confidence.</span><br />
-                  It&apos;s Your Body Asking<br />
-                  for Help.
+                <h1
+                  className="text-white text-4xl sm:text-5xl md:text-[3.4rem] font-bold leading-[1.05] mb-6"
+                  style={{ fontFamily: "Lora, Georgia, serif" }}
+                >
+                  ED Isn&rsquo;t Just About Confidence.
+                  <br />
+                  <span className="text-amber-400">It&rsquo;s Your Body Asking for Help.</span>
                 </h1>
-                <p className="text-white/80 text-lg leading-relaxed mb-8">
-                  Most treatments mask the symptoms. At Transformity Health, Dr. Liv Uslar &mdash; Harvard-trained MD/PhD &mdash; uncovers the root cause of your ED through advanced diagnostics and delivers a personalized, pill-free treatment plan.
+                <p className="text-white/80 text-lg leading-relaxed mb-7 max-w-xl">
+                  Most treatments mask the symptoms. At Transformity Health,
+                  Dr. Liv Uslar &mdash; Harvard-trained MD/PhD &mdash; finds the root cause
+                  of your ED through advanced diagnostics and delivers a personalized,
+                  pill-free treatment plan.
                 </p>
-                <div className="space-y-3 mb-8">
+                <ul className="space-y-3 mb-8 max-w-lg">
                   {[
-                    "GainsWave shockwave therapy with 60–80% success rates",
-                    "Hormone balancing, nutrition & gut health protocols",
-                    "Advanced blood work &amp; biomarker testing",
-                    "No pills. No quick fixes. Real, lasting results.",
-                  ].map((item, i) => (
-                    <div key={i} className="flex items-start gap-3">
-                      <CheckIcon className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
-                      <span className="text-white/90 text-sm" dangerouslySetInnerHTML={{ __html: item }} />
-                    </div>
+                    "GainsWave shockwave therapy with documented 60–80% success rates",
+                    "Hormone, gut health & metabolic optimization",
+                    "Advanced bloodwork and biomarker testing",
+                    "No quick fixes — real, lasting results, no pill dependency",
+                  ].map((item) => (
+                    <li key={item} className="flex items-start gap-3">
+                      <span className="mt-0.5 shrink-0 w-5 h-5 rounded-full bg-amber-400/20 border border-amber-400/40 flex items-center justify-center text-amber-300">
+                        <CheckIcon className="w-3 h-3" />
+                      </span>
+                      <span className="text-white/85 text-[0.97rem]">{item}</span>
+                    </li>
                   ))}
-                </div>
-                <div className="flex items-center gap-6">
-                  <div className="flex -space-x-2">
-                    {[1, 2, 3, 4].map((i) => (
-                      <div key={i} className="w-9 h-9 rounded-full bg-amber-500/20 border-2 border-amber-400/40 flex items-center justify-center text-xs text-amber-300 font-bold">
-                        {["D","A","M","B"][i-1]}
+                </ul>
+                <div className="flex flex-wrap items-center gap-6">
+                  <div className="flex items-center gap-3">
+                    <div className="flex -space-x-2">
+                      {["D", "M", "J", "A"].map((c) => (
+                        <div
+                          key={c}
+                          className="w-9 h-9 rounded-full bg-amber-400/25 border-2 border-[#07403F] flex items-center justify-center text-xs text-amber-200 font-bold"
+                          aria-hidden="true"
+                        >
+                          {c}
+                        </div>
+                      ))}
+                    </div>
+                    <div>
+                      <div className="flex gap-0.5" aria-label="5 out of 5 stars">
+                        {[...Array(5)].map((_, i) => (
+                          <StarIcon key={i} className="w-4 h-4 text-amber-400" />
+                        ))}
                       </div>
-                    ))}
+                      <p className="text-white/65 text-xs mt-0.5">207 Google reviews · 5.0 rating</p>
+                    </div>
                   </div>
-                  <div>
-                    <div className="flex gap-0.5 mb-0.5">{[...Array(5)].map((_, i) => <StarIcon key={i} />)}</div>
-                    <p className="text-white/70 text-xs">207 Google reviews &middot; 5.0 rating</p>
-                  </div>
+                  <a
+                    href="tel:9177044886"
+                    className="hidden md:inline-flex items-center gap-2 text-amber-300 hover:text-amber-200 font-semibold text-sm transition-colors"
+                  >
+                    <PhoneIcon className="w-4 h-4" />
+                    917-704-4886
+                  </a>
                 </div>
               </div>
 
-              <div id="consultation-form">
+              <div id="consultation" className="md:col-span-5">
                 <LeadForm variant="hero" />
               </div>
             </div>
           </div>
         </section>
 
-        {/* ─── Trust Bar ─── */}
-        <section className="bg-[#052e2d] py-6 border-b border-amber-500/20">
+        {/* ── Trust Bar ── */}
+        <section id="credentials" className="bg-[#052e2d] py-6 border-b border-amber-500/20">
           <div className="max-w-6xl mx-auto px-4">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
               {[
                 { stat: "5.0 ★", label: "Google Rating" },
-                { stat: "207+", label: "5-Star Reviews" },
-                { stat: "Harvard-Trained", label: "MD/PhD" },
-                { stat: "0%", label: "APR Financing Available" },
-              ].map((item, i) => (
-                <div key={i}>
-                  <p className="text-amber-400 font-bold text-xl">{item.stat}</p>
-                  <p className="text-white/60 text-xs mt-0.5">{item.label}</p>
+                { stat: "207+", label: "Five-Star Reviews" },
+                { stat: "Harvard", label: "Trained MD/PhD" },
+                { stat: "0% APR", label: "Financing Available" },
+              ].map((item) => (
+                <div key={item.label}>
+                  <p className="text-amber-400 font-bold text-xl sm:text-2xl">{item.stat}</p>
+                  <p className="text-white/65 text-xs mt-0.5 uppercase tracking-wide">{item.label}</p>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* ─── The Problem Section ─── */}
-        <section className="py-16 md:py-24 bg-white">
+        {/* ── The Problem ── */}
+        <section id="why-pills-fail" className="py-16 md:py-24 bg-white">
           <div className="max-w-6xl mx-auto px-4">
             <Reveal>
               <div className="max-w-3xl mx-auto text-center mb-14">
-                <h2 className="text-3xl md:text-4xl font-bold text-[#07403F] mb-4" style={{ fontFamily: "Lora, Georgia, serif" }}>
-                  Pills Don&apos;t Fix the Problem.<br />They Just Postpone It.
+                <p className="text-amber-600 font-semibold text-sm uppercase tracking-widest mb-3">
+                  Why Pills Don&rsquo;t Work
+                </p>
+                <h2
+                  className="text-3xl md:text-[2.5rem] font-bold text-[#07403F] mb-5 leading-tight"
+                  style={{ fontFamily: "Lora, Georgia, serif" }}
+                >
+                  Pills Postpone the Problem.
+                  <br />
+                  They Don&rsquo;t Solve It.
                 </h2>
                 <p className="text-gray-600 text-lg leading-relaxed">
-                  Erectile dysfunction is rarely &ldquo;just in your head&rdquo; &mdash; and it&apos;s rarely caused by low Viagra levels. It&apos;s a signal. Poor circulation, hormone imbalances, metabolic dysfunction, inflammation, or psychological stress are all real, identifiable causes. We find them.
+                  Erectile dysfunction is rarely &ldquo;just in your head&rdquo; and it isn&rsquo;t
+                  caused by low Viagra levels. It&rsquo;s a signal &mdash; poor circulation,
+                  hormone imbalance, metabolic dysfunction, inflammation, or chronic stress.
+                  Our work is to find the cause, not silence the symptom.
                 </p>
               </div>
             </Reveal>
 
-            <div className="grid md:grid-cols-2 gap-8 items-center">
+            <div className="grid md:grid-cols-2 gap-8 items-stretch">
               <Reveal>
-                <div className="space-y-6">
-                  <div className="bg-red-50 border border-red-100 rounded-xl p-5">
-                    <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
-                      <span className="text-red-500">&#x2715;</span> The Conventional Approach
-                    </h3>
-                    <ul className="space-y-2 text-gray-600 text-sm">
-                      {[
-                        "Prescribe a pill and send you home",
-                        "No investigation into why it&apos;s happening",
-                        "Side effects that create new problems",
-                        "Temporary fix at best &mdash; dependency at worst",
-                      ].map((item, i) => (
-                        <li key={i} className="flex items-center gap-2" dangerouslySetInnerHTML={{ __html: `<span class="text-red-400">&#9679;</span> ${item}` }} />
-                      ))}
-                    </ul>
+                <div className="bg-red-50/60 border border-red-100 rounded-2xl p-7 h-full">
+                  <div className="flex items-center gap-3 mb-4">
+                    <span className="w-9 h-9 rounded-full bg-red-100 text-red-500 flex items-center justify-center">
+                      <XIcon className="w-5 h-5" />
+                    </span>
+                    <h3 className="font-bold text-[#07403F] text-lg">The conventional approach</h3>
                   </div>
-                  <div className="bg-green-50 border border-green-100 rounded-xl p-5">
-                    <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
-                      <span className="text-green-600">&#x2713;</span> The Transformity Approach
-                    </h3>
-                    <ul className="space-y-2 text-gray-600 text-sm">
-                      {[
-                        "Comprehensive diagnostics to find the root cause",
-                        "GainsWave shockwave therapy to restore blood flow",
-                        "Hormone optimization &amp; gut health protocols",
-                        "Personalized program that addresses YOUR WHY",
-                      ].map((item, i) => (
-                        <li key={i} className="flex items-center gap-2" dangerouslySetInnerHTML={{ __html: `<span class="text-green-500">&#9679;</span> ${item}` }} />
-                      ))}
-                    </ul>
-                  </div>
+                  <ul className="space-y-3 text-gray-700 text-[0.96rem]">
+                    {[
+                      "Prescribe a pill, send you home, hope it works.",
+                      "No real investigation into why ED is happening.",
+                      "Side effects that create new problems.",
+                      "A temporary fix at best, dependency at worst.",
+                    ].map((it) => (
+                      <li key={it} className="flex gap-2.5">
+                        <span className="mt-2 w-1.5 h-1.5 rounded-full bg-red-400 shrink-0" />
+                        <span>{it}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               </Reveal>
-              <Reveal delay={150}>
-                <div className="relative rounded-2xl overflow-hidden aspect-[4/3] shadow-xl">
-                  <Image
-                    src="/clinic.jpg"
-                    alt="Transformity Health clinic consultation"
-                    fill
-                    className="object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#07403F]/60 to-transparent" />
-                  <div className="absolute bottom-0 left-0 right-0 p-6">
-                    <p className="text-white font-semibold text-sm">
-                      Every treatment begins with a comprehensive evaluation &mdash; not a guess.
+              <Reveal delay={100}>
+                <div className="bg-[#07403F] text-white rounded-2xl p-7 h-full relative overflow-hidden">
+                  <div className="flex items-center gap-3 mb-4">
+                    <span className="w-9 h-9 rounded-full bg-amber-400/25 text-amber-300 flex items-center justify-center">
+                      <CheckIcon className="w-5 h-5" />
+                    </span>
+                    <h3 className="font-bold text-white text-lg">The Transformity approach</h3>
+                  </div>
+                  <ul className="space-y-3 text-white/90 text-[0.96rem]">
+                    {[
+                      "Comprehensive diagnostics to identify the actual cause.",
+                      "GainsWave shockwave therapy to restore blood flow.",
+                      "Hormone optimization, gut health, and metabolic support.",
+                      "A personalized program built around your biology, not a script pad.",
+                    ].map((it) => (
+                      <li key={it} className="flex gap-2.5">
+                        <span className="mt-2 w-1.5 h-1.5 rounded-full bg-amber-300 shrink-0" />
+                        <span>{it}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </Reveal>
+            </div>
+          </div>
+        </section>
+
+        {/* ── Meet Dr. Liv ── */}
+        <section id="meet-dr-liv" className="py-16 md:py-24 bg-[#FEF9EE]">
+          <div className="max-w-6xl mx-auto px-4">
+            <div className="grid md:grid-cols-5 gap-10 md:gap-14 items-center">
+              <Reveal className="md:col-span-2">
+                <div className="relative max-w-sm mx-auto md:mx-0">
+                  <div className="relative rounded-2xl overflow-hidden aspect-[3/4] shadow-xl bg-[#07403F]/10">
+                    <Image
+                      src="/dr-liv.webp"
+                      alt="Dr. Liubou (Liv) Uslar, MD/PhD — Founder, Transformity Health"
+                      fill
+                      className="object-cover object-center"
+                      sizes="(max-width: 768px) 320px, 380px"
+                    />
+                  </div>
+                  <div className="absolute -bottom-4 -right-2 md:-bottom-5 md:-right-5 bg-[#07403F] text-white rounded-xl p-3.5 shadow-xl max-w-[200px]">
+                    <p className="text-amber-400 font-bold text-sm">Harvard-Trained</p>
+                    <p className="text-white/85 text-[11px] mt-0.5 leading-snug">
+                      MD/PhD &bull; Board Certified Internal Medicine &bull; Functional Medicine
                     </p>
                   </div>
                 </div>
               </Reveal>
-            </div>
-          </div>
-        </section>
 
-        {/* ─── About Dr. Liv ─── */}
-        <section className="py-16 md:py-24 bg-[#FEF9EE]">
-          <div className="max-w-6xl mx-auto px-4">
-            <div className="grid md:grid-cols-2 gap-12 items-center">
-              <Reveal>
-                <div className="relative">
-                  <div className="relative rounded-2xl overflow-hidden aspect-[3/4] max-w-sm mx-auto shadow-xl">
-                    <Image
-                      src="/dr-liv.jpg"
-                      alt="Dr. Liv Uslar, MD/PhD — Transformity Health"
-                      fill
-                      className="object-cover object-top"
-                    />
-                  </div>
-                  <div className="absolute -bottom-4 -right-4 md:-bottom-6 md:-right-6 bg-[#07403F] text-white rounded-xl p-4 shadow-lg max-w-[180px]">
-                    <p className="text-amber-400 font-bold text-sm">Harvard-Trained</p>
-                    <p className="text-white/80 text-xs mt-0.5">MD/PhD &bull; Board Certified Internal Medicine &bull; Functional Medicine</p>
-                  </div>
-                </div>
-              </Reveal>
-
-              <Reveal delay={100}>
+              <Reveal className="md:col-span-3" delay={100}>
                 <div>
-                  <p className="text-amber-600 font-semibold text-sm uppercase tracking-wide mb-3">Meet Your Physician</p>
-                  <h2 className="text-3xl md:text-4xl font-bold text-[#07403F] mb-6" style={{ fontFamily: "Lora, Georgia, serif" }}>
+                  <p className="text-amber-600 font-semibold text-sm uppercase tracking-widest mb-3">
+                    Meet your physician
+                  </p>
+                  <h2
+                    className="text-3xl md:text-[2.5rem] font-bold text-[#07403F] mb-5 leading-tight"
+                    style={{ fontFamily: "Lora, Georgia, serif" }}
+                  >
                     Dr. Liv Uslar, MD/PhD
                   </h2>
-                  <p className="text-gray-700 leading-relaxed mb-5">
-                    Dr. Uslar trained at Harvard Medical School, completed her internal medicine residency at Mount Sinai Hospital in New York, and holds advanced functional medicine training. She graduated <em>summa cum laude</em> from the University of Hamburg and earned her PhD in breast cancer research.
+                  <p className="text-gray-700 leading-relaxed mb-4">
+                    Dr. Uslar trained at Harvard Medical School as a research fellow,
+                    completed her internal medicine residency at Mount Sinai Hospital in
+                    New York, and graduated <em>summa cum laude</em> from the University
+                    of Hamburg, where she also earned her PhD in breast cancer research.
                   </p>
                   <p className="text-gray-700 leading-relaxed mb-6">
-                    She founded Transformity Health on a simple belief: your body can heal when given the right support. She sees every patient personally &mdash; no assistants, no sales staff &mdash; and builds individualized protocols based on your unique biology.
+                    She founded Transformity Health on a simple belief: your body can heal
+                    when given the right support. She sees every patient personally
+                    &mdash; no rotating staff, no sales reps &mdash; and builds individualized
+                    protocols based on your specific biology.
                   </p>
-                  <div className="space-y-3">
+                  <ul className="grid sm:grid-cols-2 gap-x-6 gap-y-2.5">
                     {[
-                      "Harvard Medical School Research Fellow",
+                      "Harvard Medical School research fellow",
                       "Board Certified, American Board of Internal Medicine",
                       "Certified in GainsWave protocols",
                       "Licensed in 5 states: FL, NY, NJ, AZ, PA",
-                      "207 Google reviews with perfect 5.0 rating",
-                    ].map((item, i) => (
-                      <div key={i} className="flex items-center gap-3">
-                        <CheckIcon className="w-4 h-4 text-amber-500 shrink-0" />
-                        <span className="text-gray-700 text-sm">{item}</span>
-                      </div>
+                      "Functional medicine training (root-cause care)",
+                      "207 Google reviews, perfect 5.0 rating",
+                    ].map((it) => (
+                      <li key={it} className="flex items-start gap-2.5">
+                        <CheckIcon className="w-4 h-4 mt-1 text-amber-500 shrink-0" />
+                        <span className="text-gray-700 text-sm">{it}</span>
+                      </li>
                     ))}
-                  </div>
+                  </ul>
                 </div>
               </Reveal>
             </div>
           </div>
         </section>
 
-        {/* ─── Treatment Approach ─── */}
-        <section className="py-16 md:py-24 bg-white">
+        {/* ── How treatment works ── */}
+        <section id="how-treatment-works" className="py-16 md:py-24 bg-white">
           <div className="max-w-6xl mx-auto px-4">
             <Reveal>
-              <div className="text-center mb-14">
-                <h2 className="text-3xl md:text-4xl font-bold text-[#07403F] mb-4" style={{ fontFamily: "Lora, Georgia, serif" }}>
-                  Your Personalized Path to Recovery
+              <div className="max-w-2xl mx-auto text-center mb-14">
+                <p className="text-amber-600 font-semibold text-sm uppercase tracking-widest mb-3">
+                  How treatment works
+                </p>
+                <h2
+                  className="text-3xl md:text-[2.5rem] font-bold text-[#07403F] mb-4 leading-tight"
+                  style={{ fontFamily: "Lora, Georgia, serif" }}
+                >
+                  A personalized path to recovery
                 </h2>
-                <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-                  No two cases of ED are the same. Your program is designed around your biology, not a generic protocol.
+                <p className="text-gray-600 text-lg leading-relaxed">
+                  No two cases of ED are the same. Your program is designed around your
+                  biology, not a generic protocol &mdash; and it works in steps you can
+                  actually see.
                 </p>
               </div>
             </Reveal>
 
-            <div className="grid md:grid-cols-2 gap-8 mb-12">
-              <Reveal>
-                <div className="relative rounded-2xl overflow-hidden aspect-video shadow-xl">
-                  <Image
-                    src="/treatment-1.jpg"
-                    alt="GainsWave shockwave therapy treatment"
-                    fill
-                    className="object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#07403F]/70 to-transparent" />
-                  <div className="absolute bottom-0 left-0 right-0 p-5">
-                    <p className="text-amber-400 font-bold text-sm uppercase tracking-wide">GainsWave Therapy</p>
-                    <p className="text-white text-sm mt-0.5">Low-intensity shockwave therapy that regenerates blood flow</p>
+            <div className="grid md:grid-cols-3 gap-6 mb-12">
+              {[
+                {
+                  step: "01",
+                  title: "Diagnose the root cause",
+                  body: "Comprehensive hormone panels, cardiovascular markers, metabolic and inflammation labs, gut testing when relevant. We don't guess; we measure.",
+                },
+                {
+                  step: "02",
+                  title: "Build your personalized program",
+                  body: "Dr. Uslar designs a protocol that may include GainsWave shockwave therapy, hormone optimization, peptides, nutrition coaching, and lifestyle support.",
+                },
+                {
+                  step: "03",
+                  title: "Track real progress",
+                  body: "Repeat diagnostics, regular check-ins with Dr. Uslar, and adjustments along the way so your results are measurable and lasting.",
+                },
+              ].map((s) => (
+                <Reveal key={s.step}>
+                  <div className="bg-[#FEF9EE] rounded-2xl p-6 h-full border border-amber-100 relative">
+                    <span className="absolute -top-3 left-6 bg-[#07403F] text-amber-300 font-bold text-xs px-3 py-1 rounded-full tracking-wider">
+                      STEP {s.step}
+                    </span>
+                    <h3 className="font-bold text-[#07403F] text-lg mb-2 mt-1">{s.title}</h3>
+                    <p className="text-gray-700 text-sm leading-relaxed">{s.body}</p>
                   </div>
-                </div>
-              </Reveal>
-              <Reveal delay={100}>
-                <div className="relative rounded-2xl overflow-hidden aspect-video shadow-xl">
-                  <Image
-                    src="/treatment-2.jpg"
-                    alt="Functional medicine consultation"
-                    fill
-                    className="object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#07403F]/70 to-transparent" />
-                  <div className="absolute bottom-0 left-0 right-0 p-5">
-                    <p className="text-amber-400 font-bold text-sm uppercase tracking-wide">Root-Cause Diagnostics</p>
-                    <p className="text-white text-sm mt-0.5">Advanced biomarker testing, hormone panels &amp; metabolic analysis</p>
-                  </div>
-                </div>
-              </Reveal>
+                </Reveal>
+              ))}
             </div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
               {[
                 {
                   icon: <MicroscopeIcon />,
-                  title: "Comprehensive Testing",
-                  desc: "Hormone panels, cardiovascular markers, metabolic function, nutrient levels, and more.",
+                  title: "Advanced diagnostics",
+                  desc: "Hormone panels, cardiovascular markers, metabolic function, nutrient and inflammation testing — beyond standard labs.",
                 },
                 {
                   icon: <BoltIcon />,
-                  title: "GainsWave Shockwave",
-                  desc: "FDA-cleared acoustic wave therapy that stimulates new blood vessel growth and restores natural erectile function.",
+                  title: "GainsWave shockwave",
+                  desc: "Low-intensity acoustic wave therapy that stimulates new blood vessel growth and restores natural erectile function.",
                 },
                 {
                   icon: <HeartIcon />,
-                  title: "Hormone Optimization",
-                  desc: "Testosterone balancing and endocrine support tailored to your specific levels and symptoms.",
+                  title: "Hormone optimization",
+                  desc: "Testosterone, thyroid, and endocrine support tailored to your specific levels — never one-size-fits-all.",
                 },
                 {
-                  icon: <ShieldCheck />,
-                  title: "Ongoing Partnership",
-                  desc: "Dr. Uslar monitors your progress and adjusts your protocol to ensure lasting results.",
+                  icon: <ShieldIcon />,
+                  title: "Ongoing partnership",
+                  desc: "Dr. Uslar monitors your progress directly and adjusts your protocol so results last long after treatment ends.",
                 },
-              ].map((item, i) => (
-                <Reveal key={i} delay={i * 80}>
-                  <div className="bg-[#FEF9EE] rounded-xl p-6 border border-amber-100 h-full">
-                    <div className="w-12 h-12 rounded-xl bg-[#07403F]/10 flex items-center justify-center text-[#07403F] mb-4">
-                      {item.icon}
+              ].map((it) => (
+                <Reveal key={it.title}>
+                  <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm h-full">
+                    <div className="w-12 h-12 rounded-xl bg-[#07403F]/8 flex items-center justify-center text-[#07403F] mb-4">
+                      {it.icon}
                     </div>
-                    <h3 className="font-bold text-[#07403F] mb-2">{item.title}</h3>
-                    <p className="text-gray-600 text-sm leading-relaxed">{item.desc}</p>
+                    <h3 className="font-bold text-[#07403F] mb-2">{it.title}</h3>
+                    <p className="text-gray-600 text-sm leading-relaxed">{it.desc}</p>
                   </div>
                 </Reveal>
               ))}
@@ -686,15 +491,23 @@ export default function Page() {
           </div>
         </section>
 
-        {/* ─── Testimonials ─── */}
-        <section className="py-16 md:py-24 bg-[#07403F]">
+        {/* ── Testimonials ── */}
+        <section id="patient-stories" className="py-16 md:py-24 bg-[#07403F]">
           <div className="max-w-6xl mx-auto px-4">
             <Reveal>
               <div className="text-center mb-12">
-                <h2 className="text-3xl md:text-4xl font-bold text-white mb-3" style={{ fontFamily: "Lora, Georgia, serif" }}>
-                  Real Patients. Real Results.
+                <p className="text-amber-300 font-semibold text-sm uppercase tracking-widest mb-3">
+                  Patient stories
+                </p>
+                <h2
+                  className="text-3xl md:text-[2.5rem] font-bold text-white mb-3 leading-tight"
+                  style={{ fontFamily: "Lora, Georgia, serif" }}
+                >
+                  Real patients. Real results.
                 </h2>
-                <p className="text-white/70 text-lg">207 five-star reviews and counting</p>
+                <p className="text-white/70 text-lg">
+                  207 five-star Google reviews and counting.
+                </p>
               </div>
             </Reveal>
 
@@ -702,140 +515,198 @@ export default function Page() {
               {[
                 {
                   name: "Michael T.",
-                  location: "Fort Lauderdale, FL",
+                  loc: "Fort Lauderdale, FL",
                   text: "I was skeptical at first, but Dr. Liv actually listened. She ran tests my regular doctor never ordered, found the real issue, and built a plan around it. Six weeks later, I feel like I'm 20 years younger.",
                 },
                 {
                   name: "David R.",
-                  location: "Aventura, FL",
+                  loc: "Aventura, FL",
                   text: "The GainsWave treatments were painless and the results were noticeable after the second session. Dr. Uslar is thorough, knowledgeable, and actually cares. Worth every penny.",
                 },
                 {
                   name: "James K.",
-                  location: "Boca Raton, FL",
-                  text: "I'd been on Viagra for years and hated being dependent on it. Dr. Liv's program addressed why it was happening. Three months in, I no longer need medication. I can't recommend her enough.",
+                  loc: "Boca Raton, FL",
+                  text: "I'd been on Viagra for years and hated being dependent on it. Dr. Liv's program addressed why it was happening. Three months in, I no longer need the medication. I can't recommend her enough.",
                 },
               ].map((t, i) => (
-                <Reveal key={i} delay={i * 80}>
-                  <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-6 h-full">
-                    <div className="flex gap-0.5 mb-4">{[...Array(5)].map((_, j) => <StarIcon key={j} />)}</div>
-                    <p className="text-white/90 text-sm leading-relaxed mb-5">&ldquo;{t.text}&rdquo;</p>
-                    <div>
-                      <p className="text-amber-400 font-semibold text-sm">{t.name}</p>
-                      <p className="text-white/50 text-xs">{t.location}</p>
+                <Reveal key={t.name} delay={i * 80}>
+                  <figure className="bg-white/[0.06] backdrop-blur-sm border border-white/15 rounded-2xl p-6 h-full">
+                    <div className="flex gap-0.5 mb-4" aria-label="5 stars">
+                      {[...Array(5)].map((_, j) => (
+                        <StarIcon key={j} />
+                      ))}
                     </div>
-                  </div>
+                    <blockquote className="text-white/90 text-[0.95rem] leading-relaxed mb-5">
+                      &ldquo;{t.text}&rdquo;
+                    </blockquote>
+                    <figcaption>
+                      <p className="text-amber-300 font-semibold text-sm">{t.name}</p>
+                      <p className="text-white/55 text-xs">{t.loc}</p>
+                    </figcaption>
+                  </figure>
                 </Reveal>
               ))}
             </div>
           </div>
         </section>
 
-        {/* ─── Financing Section ─── */}
-        <section className="py-12 bg-[#FEF9EE] border-y border-amber-200/50">
+        {/* ── Financing ── */}
+        <section id="financing" className="py-14 bg-[#FEF9EE] border-y border-amber-200/60">
           <div className="max-w-6xl mx-auto px-4">
             <Reveal>
-              <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12">
-                <div className="flex-1">
-                  <h2 className="text-2xl md:text-3xl font-bold text-[#07403F] mb-3" style={{ fontFamily: "Lora, Georgia, serif" }}>
-                    Flexible Financing Available
+              <div className="grid md:grid-cols-12 gap-8 items-center">
+                <div className="md:col-span-7">
+                  <p className="text-amber-600 font-semibold text-sm uppercase tracking-widest mb-3">
+                    Investment & financing
+                  </p>
+                  <h2
+                    className="text-2xl md:text-3xl font-bold text-[#07403F] mb-3 leading-tight"
+                    style={{ fontFamily: "Lora, Georgia, serif" }}
+                  >
+                    Flexible financing — your health shouldn&rsquo;t be limited by your budget.
                   </h2>
-                  <p className="text-gray-600 leading-relaxed">
-                    We believe your health shouldn&apos;t be limited by your budget. Transformity Health accepts 0% APR financing through Cherry and CareCredit, making world-class care accessible.
+                  <p className="text-gray-700 leading-relaxed max-w-2xl">
+                    Functional medicine and GainsWave protocols are cash-pay services, which
+                    means more time with Dr. Uslar and a program built around you, not your
+                    insurance company. Transformity Health accepts 0% APR financing through
+                    Cherry and CareCredit, and some diagnostics may be eligible for HSA/FSA
+                    reimbursement.
                   </p>
                 </div>
-                <div className="flex gap-6 items-center flex-shrink-0">
-                  {["Cherry Financing", "CareCredit", "HSA/FSA"].map((item, i) => (
-                    <div key={i} className="text-center">
-                      <div className="w-16 h-16 rounded-xl bg-white shadow-md border border-amber-100 flex items-center justify-center">
-                        <span className="text-[#07403F] text-xs font-bold text-center leading-tight px-1">{item}</span>
+                <div className="md:col-span-5">
+                  <div className="grid grid-cols-3 gap-4">
+                    {[
+                      { label: "Cherry", sub: "0% APR" },
+                      { label: "CareCredit", sub: "Plans available" },
+                      { label: "HSA / FSA", sub: "May apply" },
+                    ].map((b) => (
+                      <div
+                        key={b.label}
+                        className="bg-white rounded-xl border border-amber-100 shadow-sm py-4 px-3 text-center"
+                      >
+                        <p className="text-[#07403F] font-bold text-sm">{b.label}</p>
+                        <p className="text-gray-500 text-[11px] mt-0.5">{b.sub}</p>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               </div>
             </Reveal>
           </div>
         </section>
 
-        {/* ─── Second Form / CTA ─── */}
-        <section className="py-16 md:py-24 bg-[#07403F]" id="get-started">
+        {/* ── Second CTA ── */}
+        <section id="get-started" className="py-16 md:py-24 bg-[#07403F]">
           <div className="max-w-6xl mx-auto px-4">
-            <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div className="grid md:grid-cols-2 gap-10 md:gap-14 items-center">
               <Reveal>
                 <div>
-                  <h2 className="text-3xl md:text-4xl font-bold text-white mb-6" style={{ fontFamily: "Lora, Georgia, serif" }}>
-                    You Don&apos;t Have to Just<br />
-                    <span className="text-amber-400">Accept This.</span>
-                  </h2>
-                  <p className="text-white/80 text-lg leading-relaxed mb-8">
-                    ED affects millions of men &mdash; and most of them suffer in silence, or settle for a pill that barely works. You deserve a real answer, from a physician who will actually take the time to understand what&apos;s going on.
+                  <p className="text-amber-300 font-semibold text-sm uppercase tracking-widest mb-3">
+                    Take the next step
                   </p>
-                  <div className="space-y-4">
+                  <h2
+                    className="text-3xl md:text-[2.5rem] font-bold text-white mb-5 leading-tight"
+                    style={{ fontFamily: "Lora, Georgia, serif" }}
+                  >
+                    You don&rsquo;t have to just{" "}
+                    <span className="text-amber-400">accept this.</span>
+                  </h2>
+                  <p className="text-white/80 text-lg leading-relaxed mb-7">
+                    ED affects millions of men &mdash; most suffer in silence, or settle for a
+                    pill that barely works. You deserve a real answer from a physician who
+                    takes the time to understand what&rsquo;s actually going on.
+                  </p>
+                  <ul className="space-y-4">
                     {[
-                      { title: "Free Initial Consultation", desc: "Speak directly with Dr. Uslar about your situation at no cost." },
-                      { title: "Confidential & Judgment-Free", desc: "Everything discussed is protected and handled with complete discretion." },
-                      { title: "Located in Hallandale Beach, FL", desc: "Serving patients from across South Florida." },
-                    ].map((item, i) => (
-                      <div key={i} className="flex gap-4">
-                        <div className="w-10 h-10 rounded-full bg-amber-500/20 border border-amber-400/30 flex items-center justify-center text-amber-400 shrink-0 mt-0.5">
-                          <CheckIcon className="w-4 h-4 text-amber-400" />
-                        </div>
+                      {
+                        title: "Free initial consultation",
+                        desc: "Speak directly with Dr. Uslar about your situation at no cost.",
+                      },
+                      {
+                        title: "Confidential & judgment-free",
+                        desc: "Everything is protected and handled with complete discretion.",
+                      },
+                      {
+                        title: "Hallandale Beach, FL",
+                        desc: "Serving patients across South Florida — and licensed in 5 states for telehealth follow-up.",
+                      },
+                    ].map((it) => (
+                      <li key={it.title} className="flex gap-4">
+                        <span className="w-10 h-10 rounded-full bg-amber-500/20 border border-amber-400/30 flex items-center justify-center text-amber-300 shrink-0 mt-0.5">
+                          <CheckIcon className="w-4 h-4" />
+                        </span>
                         <div>
-                          <p className="text-white font-semibold text-sm">{item.title}</p>
-                          <p className="text-white/60 text-sm">{item.desc}</p>
+                          <p className="text-white font-semibold text-[0.97rem]">{it.title}</p>
+                          <p className="text-white/65 text-sm">{it.desc}</p>
                         </div>
-                      </div>
+                      </li>
                     ))}
-                  </div>
+                  </ul>
                 </div>
               </Reveal>
 
               <Reveal delay={100}>
-                <div id="consultation-form-2">
-                  <LeadForm variant="inline" />
-                </div>
+                <LeadForm variant="inline" />
               </Reveal>
             </div>
           </div>
         </section>
 
-        {/* ─── FAQ Section ─── */}
-        <section className="py-16 md:py-24 bg-white">
+        {/* ── FAQ ── */}
+        <section id="faq" className="py-16 md:py-24 bg-white">
           <div className="max-w-3xl mx-auto px-4">
             <Reveal>
-              <h2 className="text-3xl font-bold text-[#07403F] mb-10 text-center" style={{ fontFamily: "Lora, Georgia, serif" }}>
-                Common Questions
-              </h2>
+              <div className="text-center mb-10">
+                <p className="text-amber-600 font-semibold text-sm uppercase tracking-widest mb-3">
+                  Frequently asked
+                </p>
+                <h2
+                  className="text-3xl font-bold text-[#07403F] leading-tight"
+                  style={{ fontFamily: "Lora, Georgia, serif" }}
+                >
+                  Common questions
+                </h2>
+              </div>
             </Reveal>
-            <div className="space-y-4">
+            <div className="space-y-3">
               {[
                 {
                   q: "Is ED treatment at Transformity Health covered by insurance?",
-                  a: "Most functional medicine and GainsWave treatments are cash-pay investments. However, we accept Cherry and CareCredit financing with 0% APR options, and some diagnostic testing may be covered by insurance or HSA/FSA.",
+                  a: "Most functional medicine services and GainsWave protocols are cash-pay. We accept Cherry and CareCredit financing with 0% APR options, and some diagnostic testing may be reimbursable through HSA/FSA. Dr. Uslar will walk you through the options at your consultation.",
                 },
                 {
                   q: "How many GainsWave sessions will I need?",
-                  a: "Most patients see meaningful improvement after 6–12 sessions. Dr. Uslar will assess your case and design a protocol tailored to your specific situation.",
+                  a: "Most patients see meaningful improvement after 6–12 sessions. Dr. Uslar will assess your case and design a protocol tailored to your specific situation — there is no fixed package because no two patients are alike.",
                 },
                 {
                   q: "Is the treatment painful?",
-                  a: "GainsWave therapy is non-invasive and generally well-tolerated. Most patients experience mild warmth or tingling during treatment. There is no downtime.",
+                  a: "GainsWave is non-invasive and generally well-tolerated. Most patients describe a mild warmth or tingling during treatment. There is no downtime, and you can drive yourself home afterward.",
                 },
                 {
-                  q: "How soon can I see results?",
-                  a: "Many patients notice improvements after the third or fourth session. Full results from a complete protocol are typically seen within 4–8 weeks of finishing treatment.",
+                  q: "How quickly will I see results?",
+                  a: "Many patients notice improvements after the third or fourth session. Full results from a complete protocol are typically visible within 4–8 weeks after finishing treatment — and because we treat the root cause, results last.",
                 },
                 {
                   q: "Do I need a referral to schedule a consultation?",
-                  a: "No referral is required. Simply request a consultation using the form on this page and our team will reach out to schedule your appointment with Dr. Uslar.",
+                  a: "No. You can request a consultation directly through the form on this page, and our team will reach out within one business day to schedule your appointment with Dr. Uslar.",
                 },
-              ].map((item, i) => (
-                <Reveal key={i} delay={i * 50}>
-                  <div className="border border-gray-200 rounded-xl p-5">
-                    <h3 className="font-semibold text-[#07403F] mb-2">{item.q}</h3>
-                    <p className="text-gray-600 text-sm leading-relaxed">{item.a}</p>
-                  </div>
+                {
+                  q: "Is everything confidential?",
+                  a: "Yes. All consultations and patient records are protected. Dr. Uslar sees every patient personally, and our staff is trained in HIPAA-compliant care. Many of our patients tell us it's the most discreet medical experience they've had.",
+                },
+              ].map((item) => (
+                <Reveal key={item.q}>
+                  <details className="group border border-gray-200 rounded-xl bg-white hover:border-amber-200 transition-colors">
+                    <summary className="cursor-pointer list-none p-5 flex items-start justify-between gap-4">
+                      <h3 className="font-semibold text-[#07403F] text-[0.98rem]">{item.q}</h3>
+                      <span className="shrink-0 w-6 h-6 rounded-full bg-[#07403F]/8 text-[#07403F] flex items-center justify-center text-lg leading-none transition-transform group-open:rotate-45">
+                        +
+                      </span>
+                    </summary>
+                    <p className="px-5 pb-5 text-gray-600 text-[0.93rem] leading-relaxed">
+                      {item.a}
+                    </p>
+                  </details>
                 </Reveal>
               ))}
             </div>
@@ -843,62 +714,75 @@ export default function Page() {
         </section>
       </main>
 
-      {/* ─── Footer ─── */}
-      <footer className="bg-[#052e2d] text-white py-12">
+      {/* ── Footer ── */}
+      <footer id="contact" className="bg-[#052e2d] text-white pt-14 pb-10">
         <div className="max-w-6xl mx-auto px-4">
-          <div className="grid md:grid-cols-3 gap-8 mb-8">
+          <div className="grid md:grid-cols-3 gap-10 mb-10">
             <div>
-              <div className="relative h-10 w-40 mb-4">
-                <Image src="/logo.png" alt="Transformity Health" fill className="object-contain object-left brightness-0 invert" />
+              <div className="relative h-10 w-44 mb-4">
+                <Image
+                  src="/logo.png"
+                  alt="Transformity Health"
+                  fill
+                  className="object-contain object-left brightness-0 invert"
+                  sizes="180px"
+                />
               </div>
               <p className="text-white/60 text-sm leading-relaxed">
-                Functional medicine &amp; root-cause treatment for erectile dysfunction in South Florida.
+                Functional medicine and root-cause ED care from a Harvard-trained
+                physician. Personalized programs, not pills.
               </p>
             </div>
             <div>
-              <h4 className="font-semibold text-amber-400 mb-3 text-sm uppercase tracking-wide">Treatments</h4>
-              <ul className="space-y-2 text-white/60 text-sm">
-                <li>GainsWave Shockwave Therapy</li>
-                <li>Hormone Optimization</li>
-                <li>Advanced Diagnostics</li>
-                <li>Personalized ED Protocols</li>
+              <h4 className="font-semibold text-amber-300 mb-3 text-sm uppercase tracking-wider">
+                Treatments
+              </h4>
+              <ul className="space-y-2 text-white/65 text-sm">
+                <li>GainsWave shockwave therapy</li>
+                <li>Hormone optimization</li>
+                <li>Advanced diagnostics</li>
+                <li>Functional medicine for men</li>
+                <li>Personalized ED protocols</li>
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold text-amber-400 mb-3 text-sm uppercase tracking-wide">Contact</h4>
-              <ul className="space-y-2 text-white/60 text-sm">
+              <h4 className="font-semibold text-amber-300 mb-3 text-sm uppercase tracking-wider">
+                Contact
+              </h4>
+              <ul className="space-y-2.5 text-white/65 text-sm">
                 <li>
-                  <a href="tel:9177044886" className="hover:text-amber-400 transition-colors flex items-center gap-2">
-                    <PhoneIcon />
+                  <a
+                    href="tel:9177044886"
+                    className="hover:text-amber-300 transition-colors inline-flex items-center gap-2"
+                  >
+                    <PhoneIcon className="w-4 h-4" />
                     917-704-4886
                   </a>
                 </li>
                 <li>
-                  <a href="mailto:contact@transformityhealth.com" className="hover:text-amber-400 transition-colors">
+                  <a
+                    href="mailto:contact@transformityhealth.com"
+                    className="hover:text-amber-300 transition-colors break-all"
+                  >
                     contact@transformityhealth.com
                   </a>
                 </li>
                 <li>Hallandale Beach, Florida</li>
+                <li className="text-white/45 text-xs pt-1">Licensed in FL · NY · NJ · AZ · PA</li>
               </ul>
             </div>
           </div>
-          <div className="border-t border-white/10 pt-6 text-center text-white/40 text-xs">
+          <div className="border-t border-white/10 pt-6 text-center text-white/45 text-xs leading-relaxed">
             &copy; {new Date().getFullYear()} Transformity Health. All rights reserved.
-            &nbsp;&middot;&nbsp; This page is for informational purposes only and does not constitute medical advice.
+            <br className="md:hidden" />
+            <span className="hidden md:inline"> &nbsp;&middot;&nbsp; </span>
+            This page is for informational purposes only and does not constitute medical advice.
           </div>
         </div>
       </footer>
 
-      {/* Mobile padding for sticky bar */}
-      <div className="md:hidden h-16" />
+      {/* Mobile padding for sticky CTA */}
+      <div className="md:hidden h-16" aria-hidden="true" />
     </>
   );
-}
-
-/* ─── TypeScript global augments ─── */
-declare global {
-  interface Window {
-    dataLayer: Record<string, unknown>[];
-    fbq: (event: string, ...args: unknown[]) => void;
-  }
 }

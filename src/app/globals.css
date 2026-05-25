@@ -1,41 +1,124 @@
 @import "tailwindcss";
 
-:root {
-  /* Transformity Health brand colors */
-  --color-primary: #07403F;       /* Deep teal/green */
-  --color-primary-dark: #052e2d;  /* Darker teal */
-  --color-primary-light: #0d5e5c; /* Lighter teal */
-  --color-gold: #C9A84C;          /* Gold accent */
-  --color-gold-light: #e2c06a;    /* Light gold */
-  --color-cream: #FEF9EE;         /* Warm cream bg */
-  --color-text: #1a1a1a;
-  --color-text-muted: #4a5568;
-}
-
 @theme {
-  --color-primary: #07403F;
+  /* Transformity Health brand */
+  --color-primary: #07403F;          /* Deep teal/green */
   --color-primary-dark: #052e2d;
   --color-primary-light: #0d5e5c;
-  --color-secondary: #C9A84C;
+  --color-secondary: #C9A84C;        /* Gold */
   --color-secondary-light: #e2c06a;
   --color-cream: #FEF9EE;
-  --font-sans: "Lora", "Georgia", serif;
+  --color-text: #1a1a1a;
+  --color-text-muted: #4a5568;
+  --color-border: #E5E7EB;
+
+  --font-display: "Lora", "Georgia", serif;
   --font-body: "Inter", "Helvetica Neue", sans-serif;
 }
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
 }
 
 body {
-  font-family: "Inter", "Helvetica Neue", sans-serif;
+  font-family: var(--font-body);
   color: var(--color-text);
   background: #fff;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  letter-spacing: -0.012em;
+}
+
+h1 { letter-spacing: -0.024em; }
+
+*:focus-visible {
+  outline: 2px solid var(--color-secondary);
+  outline-offset: 2px;
+}
+
+/* ---------- Form input ---------- */
+.lp-input {
+  width: 100%;
+  border: 1px solid #d1d5db;
+  background: #fff;
+  border-radius: 0.5rem;
+  padding: 0.875rem 1rem;
+  font-size: 1rem;
+  color: var(--color-text);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.lp-input::placeholder { color: #9CA3AF; }
+.lp-input:focus {
+  border-color: var(--color-secondary);
+  box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.22);
+  outline: none;
+}
+.lp-input-dark {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.20);
+  color: #fff;
+}
+.lp-input-dark::placeholder { color: rgba(255, 255, 255, 0.55); }
+.lp-input-dark:focus {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: var(--color-secondary);
+}
+.lp-input-error {
+  border-color: #dc2626 !important;
+  background: #fef2f2;
+  color: #1a1a1a;
+}
+.lp-input-dark.lp-input-error {
+  background: rgba(252, 165, 165, 0.18);
+  color: #fff;
+}
+.lp-input-error:focus {
+  border-color: #dc2626 !important;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.20);
+}
+.lp-field-error {
+  margin-top: 0.375rem;
+  font-size: 0.78rem;
+  line-height: 1.25;
+  font-weight: 600;
+  color: #dc2626;
+}
+.lp-field-error-dark {
+  color: #fca5a5;
+}
+
+/* ---------- Buttons ---------- */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: var(--color-secondary);
+  color: #07403F;
+  font-weight: 800;
+  padding: 0.95rem 1.6rem;
+  border-radius: 0.6rem;
+  font-size: 1rem;
+  box-shadow: 0 6px 18px -6px rgba(201, 168, 76, 0.55);
+  transition: background 0.18s, transform 0.18s, box-shadow 0.18s;
+}
+.btn-primary:hover {
+  background: var(--color-secondary-light);
+  transform: translateY(-1px);
+}
+.btn-primary:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+}
+
+@media (max-width: 640px) {
+  h1 { line-height: 1.08; }
 }

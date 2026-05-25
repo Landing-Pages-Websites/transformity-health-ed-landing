@@ -1,13 +1,8 @@
 "use client";
 
-import { useEffect, useCallback, useRef } from "react";
+import { useEffect, useCallback, useRef, useState } from "react";
 
-const CONFIG = {
-  CUSTOMER_ID: "ba77060c-c433-4349-8d1d-e375141a8033",
-  SITE_ID: "bc8f0b37-8b1f-4721-8605-5cfd8d1fc295",
-  SOURCE_PROVIDER: "transformity-health-ed-lp",
-  ENDPOINT: "https://analytics.gomega.ai/submission/submit",
-};
+const ENDPOINT = "https://analytics.gomega.ai/submission/submit";
 
 const STORAGE_KEYS = {
   VISITOR_ID: "_mega_vid",
@@ -29,49 +24,29 @@ interface Attribution {
   fbc: string | null;
 }
 
-interface SubmissionPayload {
-  customer_id: string;
-  site_id: string;
-  source_provider: string;
-  form_data: Record<string, unknown>;
-  url: string;
-  referrer_url: string | null;
-  session_id: string;
-  visitor_id: string;
-  utm_source: string | null;
-  utm_medium: string | null;
-  utm_campaign: string | null;
-  utm_term: string | null;
-  utm_content: string | null;
-  gclid: string | null;
-  gbraid: string | null;
-  wbraid: string | null;
-  fbclid: string | null;
-  fbp: string | null;
-  fbc: string | null;
+interface LeadFormConfig {
+  siteId: string;
+  customerId: string;
+  sourceProvider: string;
+  pagePath?: string;
 }
 
-interface SubmissionResponse {
-  ok: boolean;
-  id?: string;
-}
+type Status = "idle" | "submitting" | "success" | "error";
 
-interface UseMegaLeadFormReturn {
-  submit: (formData: Record<string, unknown>) => Promise<SubmissionResponse>;
+interface FormState {
+  status: Status;
+  errorMessage: string;
 }
 
 const generateId = (prefix: string): string => {
   if (typeof crypto !== "undefined" && crypto.randomUUID) {
     return `${prefix}_${crypto.randomUUID()}`;
   }
-  return `${prefix}_${"xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
-    /[xy]/g,
-    (c) => {
-      const r = (Math.random() * 16) | 0;
-      const v = c === "x" ? r : (r & 0x3) | 0x8;
-      return v.toString(16);
-    }
-  )}`;
+  return `${prefix}_${"xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === "x" ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  })}`;
 };
 
 const getCookie = (name: string): string | null => {
@@ -112,10 +87,8 @@ const captureAttribution = (): Attribution => {
       gbraid: null, wbraid: null, fbclid: null, fbp: null, fbc: null,
     };
   }
-
   const url = new URL(window.location.href);
   const params = url.searchParams;
-
   const attribution: Attribution = {
     utm_source: params.get("utm_source"),
     utm_medium: params.get("utm_medium"),
@@ -127,57 +100,133 @@ const captureAttribution = (): Attribution => {
     wbraid: params.get("wbraid"),
     fbclid: params.get("fbclid"),
     fbp: getCookie("_fbp"),
-    fbc: getCookie("_fbc") || params.get("fbclid"),
+    fbc: getCookie("_fbc"),
   };
-
-  const stored = sessionStorage.getItem(STORAGE_KEYS.ATTRIBUTION);
-  if (!stored) {
-    sessionStorage.setItem(STORAGE_KEYS.ATTRIBUTION, JSON.stringify(attribution));
+  if (attribution.fbclid && !attribution.fbc) {
+    attribution.fbc = `fb.1.${Date.now()}.${attribution.fbclid}`;
   }
-
-  return stored ? JSON.parse(stored) : attribution;
+  return attribution;
 };
 
-export const useMegaLeadForm = (): UseMegaLeadFormReturn => {
-  const attributionRef = useRef<Attribution | null>(null);
+const initAttribution = (): Attribution => {
+  if (typeof window === "undefined" || typeof localStorage === "undefined") {
+    return captureAttribution();
+  }
+  const trackingParams = ["utm_source", "gclid", "fbclid", "gbraid", "wbraid"];
+  const url = new URL(window.location.href);
+  const hasTrackingParams = trackingParams.some((p) => url.searchParams.has(p));
+  if (hasTrackingParams) {
+    const attribution = captureAttribution();
+    localStorage.setItem(STORAGE_KEYS.ATTRIBUTION, JSON.stringify(attribution));
+    return attribution;
+  }
+  const stored = localStorage.getItem(STORAGE_KEYS.ATTRIBUTION);
+  if (stored) {
+    try {
+      return JSON.parse(stored) as Attribution;
+    } catch {
+      // fall through
+    }
+  }
+  const attribution = captureAttribution();
+  localStorage.setItem(STORAGE_KEYS.ATTRIBUTION, JSON.stringify(attribution));
+  return attribution;
+};
+
+export function useMegaLeadForm(config: LeadFormConfig) {
+  const isInitialized = useRef(false);
+  const [state, setState] = useState<FormState>({ status: "idle", errorMessage: "" });
 
   useEffect(() => {
-    attributionRef.current = captureAttribution();
+    if (!isInitialized.current) {
+      initAttribution();
+      isInitialized.current = true;
+    }
   }, []);
 
-  const submit = useCallback(
-    async (formData: Record<string, unknown>): Promise<SubmissionResponse> => {
-      const attribution = attributionRef.current || captureAttribution();
+  const submitLead = useCallback(
+    async (formData: Record<string, unknown>) => {
+      if (state.status === "submitting") return;
 
-      const payload: SubmissionPayload = {
-        customer_id: CONFIG.CUSTOMER_ID,
-        site_id: CONFIG.SITE_ID,
-        source_provider: CONFIG.SOURCE_PROVIDER,
-        form_data: formData,
-        url: typeof window !== "undefined" ? window.location.href : "",
-        referrer_url:
-          typeof document !== "undefined" ? document.referrer || null : null,
-        session_id: getSessionId(),
-        visitor_id: getVisitorId(),
-        ...attribution,
-      };
-
-      const response = await fetch(CONFIG.ENDPOINT, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Submission failed: ${response.status}`);
+      // Hook-level validation
+      if (formData.phone) {
+        const phoneDigits = String(formData.phone).replace(/\D/g, "");
+        if (phoneDigits.length !== 10) {
+          setState({ status: "error", errorMessage: "Phone must be 10 digits" });
+          return;
+        }
+        formData.phone = phoneDigits;
+      }
+      if (!formData.firstName || !formData.email) {
+        setState({ status: "error", errorMessage: "First name and email are required" });
+        return;
       }
 
-      return { ok: true, id: (await response.json()).id };
+      setState({ status: "submitting", errorMessage: "" });
+
+      const attribution = initAttribution();
+
+      const payload = {
+        customer_id: config.customerId,
+        site_id: config.siteId,
+        source_provider: config.sourceProvider,
+        form_data: formData,
+        url: window.location.href,
+        referrer_url: document.referrer || null,
+        session_id: getSessionId(),
+        visitor_id: getVisitorId(),
+        utm_source: attribution.utm_source,
+        utm_medium: attribution.utm_medium,
+        utm_campaign: attribution.utm_campaign,
+        utm_term: attribution.utm_term,
+        utm_content: attribution.utm_content,
+        gclid: attribution.gclid,
+        gbraid: attribution.gbraid,
+        wbraid: attribution.wbraid,
+        fbclid: attribution.fbclid,
+        fbp: attribution.fbp,
+        fbc: attribution.fbc,
+      };
+
+      try {
+        const response = await fetch(ENDPOINT, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Submission failed: ${response.status}`);
+        }
+
+        if (typeof window !== "undefined") {
+          try {
+            window.dispatchEvent(
+              new CustomEvent("mega:form_submit", {
+                detail: { form_data: formData, page_path: config.pagePath || window.location.pathname },
+              })
+            );
+          } catch {
+            // silent
+          }
+        }
+
+        setState({ status: "success", errorMessage: "" });
+      } catch (error) {
+        setState({
+          status: "error",
+          errorMessage: error instanceof Error ? error.message : "Something went wrong. Please try again.",
+        });
+      }
     },
-    []
+    [config, state.status]
   );
 
-  return { submit };
-};
+  const reset = useCallback(() => {
+    setState({ status: "idle", errorMessage: "" });
+  }, []);
+
+  return { ...state, submitLead, reset };
+}
 
 export default useMegaLeadForm;
