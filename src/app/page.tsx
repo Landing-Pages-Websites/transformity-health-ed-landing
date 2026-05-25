@@ -100,6 +100,178 @@ function StarIcon({ className = "w-4 h-4 text-[var(--color-gold)]" }: { classNam
   );
 }
 
+/* ───────────── Credibility shield SVGs (P2) ─────────────
+   HMS-inspired but NOT the real HMS mark — generic medical /
+   academic shield, line-icon style, crimson stroke on cream.
+   See `.cred-card` and `.cred-card-label` in globals.css. */
+function ShieldHarvard({ className = "w-6 h-6" }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 32 32"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.6}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M16 3 L27 6 V15 C27 21.5 22.5 26.5 16 29 C9.5 26.5 5 21.5 5 15 V6 Z" />
+      <path d="M11 12 V20" />
+      <path d="M21 12 V20" />
+      <path d="M11 16 H21" />
+      <circle cx="16" cy="9" r="0.9" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+function ShieldABIM({ className = "w-6 h-6" }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 32 32"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.6}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M16 3 L27 6 V15 C27 21.5 22.5 26.5 16 29 C9.5 26.5 5 21.5 5 15 V6 Z" />
+      <path d="M11 17.5 L14.5 21 L21 14" />
+    </svg>
+  );
+}
+function ShieldGainsWave({ className = "w-6 h-6" }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 32 32"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.6}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M16 3 L27 6 V15 C27 21.5 22.5 26.5 16 29 C9.5 26.5 5 21.5 5 15 V6 Z" />
+      <path d="M9 17 Q11 13 13 17 Q15 21 17 17 Q19 13 21 17 Q22 19.5 23 17" />
+    </svg>
+  );
+}
+
+/* ───────────── Credential card (P2) ───────────── */
+function CredCard({
+  shield,
+  title,
+  sub,
+  dark = false,
+}: {
+  shield: React.ReactNode;
+  title: string;
+  sub: string;
+  dark?: boolean;
+}) {
+  return (
+    <div className={`cred-card ${dark ? "cred-card-dark" : ""}`}>
+      <span
+        className="shrink-0"
+        style={{ color: dark ? "#D8B97A" : "var(--color-crimson)" }}
+      >
+        {shield}
+      </span>
+      <div className="leading-tight">
+        <p className="cred-card-label">{title}</p>
+        <p className="cred-card-sub">{sub}</p>
+      </div>
+    </div>
+  );
+}
+
+/* ───────────── Trust-strip mini icons (P4) ───────────── */
+function MiniStar({ className = "w-4 h-4" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+      <path d="M10 1.6 L12.4 7 L18 7.7 L13.9 11.6 L15 17.3 L10 14.5 L5 17.3 L6.1 11.6 L2 7.7 L7.6 7 Z" />
+    </svg>
+  );
+}
+function MiniBadge({ className = "w-4 h-4" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="10" cy="8" r="5" />
+      <path d="M6.5 12 L5 18 L10 15 L15 18 L13.5 12" />
+      <path d="M8 8 L9.5 9.5 L12 7" />
+    </svg>
+  );
+}
+function MiniDiploma({ className = "w-4 h-4" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M3 6 L10 3 L17 6 L10 9 Z" />
+      <path d="M6 7.5 V12 C6 13 8 14 10 14 C12 14 14 13 14 12 V7.5" />
+      <path d="M17 6 V11" />
+    </svg>
+  );
+}
+function MiniDollar({ className = "w-4 h-4" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M13 6.5 C13 5 11.5 4 10 4 C8.5 4 7 5 7 6.5 C7 8 8.5 8.5 10 9 C11.5 9.5 13 10 13 11.5 C13 13 11.5 14 10 14 C8.5 14 7 13 7 11.5" />
+      <path d="M10 3 V4" />
+      <path d="M10 14 V15" />
+    </svg>
+  );
+}
+
+/* ───────────── Pillar icons for #treatments (P4) ─────────────
+   Custom, hand-drawn, single-weight gold line icons —
+   microscope, soundwave, double-helix, handshake. */
+function IconMicroscope({ className = "w-5 h-5" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M9 3 L11 5 L8 8 L6 6 Z" />
+      <path d="M10 6 L14 10" />
+      <path d="M12 9 C16 11 16 17 12 19" />
+      <path d="M5 21 H17" />
+      <path d="M7 18 L7 21" />
+      <path d="M15 18 L15 21" />
+    </svg>
+  );
+}
+function IconSoundwave({ className = "w-5 h-5" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M3 12 H5" />
+      <path d="M7 9 V15" />
+      <path d="M10 6 V18" />
+      <path d="M13 8 V16" />
+      <path d="M16 10 V14" />
+      <path d="M19 11 V13" />
+      <path d="M21 12 H22" />
+    </svg>
+  );
+}
+function IconHelix({ className = "w-5 h-5" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M7 4 C7 8 17 9 17 13 C17 17 7 18 7 22" />
+      <path d="M17 4 C17 8 7 9 7 13 C7 17 17 18 17 22" />
+      <path d="M8.5 7 H15.5" />
+      <path d="M8.5 19 H15.5" />
+    </svg>
+  );
+}
+function IconHandshake({ className = "w-5 h-5" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M3 10 L7 6 L11 9 L14 7 L18 11 L15 14 L11 11 L8 13 Z" />
+      <path d="M14 7 L18 6 L21 8" />
+      <path d="M3 10 L3 15" />
+      <path d="M21 8 L21 13" />
+    </svg>
+  );
+}
+
 /* ───────────── Page ───────────── */
 export default function Page() {
   return (
@@ -143,6 +315,17 @@ export default function Page() {
               {/* Editorial copy column */}
               <div className="lg:col-span-7">
                 <Reveal>
+                  {/* Masculine hero strip (P3 #1) — cinematic 16:5 above the headline */}
+                  <div className="relative aspect-[16/5] sm:aspect-[16/5] rounded-2xl overflow-hidden mb-7 sm:mb-9 bg-[var(--color-teal)]/10 shadow-[0_18px_40px_-30px_rgba(7,64,63,0.40)]">
+                    <Image
+                      src="/img/hero-man.jpg"
+                      alt="A man in his fifties looking pensively out a window — taking the next step for his health."
+                      fill
+                      className="object-cover object-[center_30%]"
+                      sizes="(max-width: 1024px) 100vw, 720px"
+                      priority
+                    />
+                  </div>
                   <span className="eyebrow">
                     Functional medicine for men · Hallandale Beach, FL
                   </span>
@@ -184,7 +367,7 @@ export default function Page() {
 
               {/* Doctor portrait */}
               <Reveal className="lg:col-span-5" delay={100}>
-                <div className="relative max-w-sm lg:max-w-none mx-auto">
+                <div id="doctor-hero-portrait" className="relative max-w-sm lg:max-w-none mx-auto">
                   <div className="relative aspect-[4/5] rounded-2xl overflow-hidden bg-[var(--color-teal)]/8 shadow-[0_30px_60px_-30px_rgba(7,64,63,0.35)]">
                     <Image
                       src="/dr-liv.webp"
@@ -211,15 +394,43 @@ export default function Page() {
 
         {/* ── Trust strip (subtle, lives between hero and editorial content) ── */}
         <section id="credentials" aria-label="Credentials" className="border-y border-[var(--color-border)] bg-[var(--color-cream-deep)]/60">
-          <div className="max-w-6xl mx-auto px-5 sm:px-8 py-7 sm:py-8">
+          <div className="max-w-6xl mx-auto px-5 sm:px-8 py-8 sm:py-10">
+            {/* Credibility row (P2) — HMS / ABIM / GainsWave credential cards */}
+            <Reveal>
+              <div className="flex flex-wrap items-stretch justify-center gap-3 sm:gap-4 mb-7 sm:mb-9">
+                <CredCard
+                  shield={<ShieldHarvard className="w-7 h-7" />}
+                  title="Harvard Medical School"
+                  sub="Research Fellow Alumna"
+                />
+                <CredCard
+                  shield={<ShieldABIM className="w-7 h-7" />}
+                  title="ABIM Board Certified"
+                  sub="Internal Medicine"
+                />
+                <CredCard
+                  shield={<ShieldGainsWave className="w-7 h-7" />}
+                  title="GainsWave Certified"
+                  sub="Shockwave Provider"
+                />
+              </div>
+            </Reveal>
+
+            <div className="border-t border-[var(--color-border)] pt-7 sm:pt-8" aria-hidden="true" />
             <ul className="grid grid-cols-2 md:grid-cols-4 gap-y-5 gap-x-6 text-center">
               {[
-                { stat: "5.0", suffix: "★", label: "Google rating" },
-                { stat: "207", suffix: "+", label: "Five-star reviews" },
-                { stat: "Harvard", suffix: "", label: "MD/PhD trained" },
-                { stat: "0%", suffix: " APR", label: "Financing available" },
+                { stat: "5.0", suffix: "★", label: "Google rating", icon: <MiniStar className="w-4 h-4" /> },
+                { stat: "207", suffix: "+", label: "Five-star reviews", icon: <MiniBadge className="w-4 h-4" /> },
+                { stat: "Harvard", suffix: "", label: "MD/PhD trained", icon: <MiniDiploma className="w-4 h-4" /> },
+                { stat: "0%", suffix: " APR", label: "Financing available", icon: <MiniDollar className="w-4 h-4" /> },
               ].map((it) => (
                 <li key={it.label}>
+                  <span
+                    className="inline-flex items-center justify-center mb-2 text-[var(--color-gold)]"
+                    aria-hidden="true"
+                  >
+                    {it.icon}
+                  </span>
                   <p className="font-display text-[var(--color-teal)] text-xl sm:text-2xl font-semibold">
                     {it.stat}
                     <span className="text-[var(--color-gold)]">{it.suffix}</span>
@@ -276,6 +487,16 @@ export default function Page() {
                   </ul>
                 </div>
                 <div className="md:border-l md:border-[var(--color-border)] md:pl-10 lg:pl-14">
+                  {/* P3 #2 — photographic inset on the "Transformity path" card */}
+                  <div className="relative aspect-[5/3] sm:aspect-[5/3] rounded-xl overflow-hidden mb-6 bg-[var(--color-teal)]/10 shadow-[0_14px_30px_-22px_rgba(7,64,63,0.40)]">
+                    <Image
+                      src="/img/premise-pulse.jpg"
+                      alt="A man checking his pulse on his wrist — your body is talking to you."
+                      fill
+                      className="object-cover object-center"
+                      sizes="(max-width: 768px) 90vw, 460px"
+                    />
+                  </div>
                   <p className="text-[var(--color-gold)] font-semibold tracking-widest text-xs uppercase mb-4">
                     The Transformity path
                   </p>
@@ -341,6 +562,15 @@ export default function Page() {
                   </p>
                 </div>
 
+                {/* P2 — Credential card at top of credential list */}
+                <div className="mt-8">
+                  <CredCard
+                    shield={<ShieldHarvard className="w-7 h-7" />}
+                    title="Harvard Medical School"
+                    sub="Research Fellow Alumna"
+                  />
+                </div>
+
                 <ul className="mt-8 grid grid-cols-2 gap-x-6 gap-y-2.5">
                   {[
                     "Harvard research fellow",
@@ -378,7 +608,8 @@ export default function Page() {
               </div>
             </Reveal>
 
-            <ol className="mt-14 space-y-10 md:space-y-0 md:grid md:grid-cols-3 md:gap-10 lg:gap-14">
+            {/* P4 — sequence rail: thin gold hairline running through all three steps on desktop */}
+            <ol className="mt-14 space-y-10 md:space-y-0 md:grid md:grid-cols-3 md:gap-10 lg:gap-14 relative md:pl-0">
               {[
                 {
                   step: "01",
@@ -391,6 +622,8 @@ export default function Page() {
                   title: "Design a personal protocol",
                   body:
                     "GainsWave shockwave therapy, hormone optimization, peptides, nutrition coaching, and lifestyle work — chosen for your specific case.",
+                  image: "/img/step-consult.jpg",
+                  alt: "Doctor and male patient reviewing labs together — a real conversation about your protocol.",
                 },
                 {
                   step: "03",
@@ -400,16 +633,26 @@ export default function Page() {
                 },
               ].map((s) => (
                 <Reveal key={s.step}>
-                  <li className="relative pl-14 md:pl-0">
-                    <span
-                      className="absolute left-0 top-0 md:relative md:left-auto md:top-auto md:mb-5 inline-flex font-display text-3xl md:text-4xl text-[var(--color-gold)]"
-                      aria-hidden="true"
-                    >
+                  <li className="relative md:border-l md:border-[var(--color-border)] md:pl-7">
+                    {/* P4 — large display numeral + gold hairline */}
+                    <span className="step-num" aria-hidden="true">
                       {s.step}
                     </span>
+                    <span className="step-rule" aria-hidden="true" />
                     <h3 className="text-xl sm:text-[1.4rem] font-semibold text-[var(--color-teal)]">
                       {s.title}
                     </h3>
+                    {s.image && (
+                      <div className="relative aspect-[5/3] rounded-xl overflow-hidden mt-4 bg-[var(--color-teal)]/10 shadow-[0_10px_24px_-18px_rgba(7,64,63,0.35)]">
+                        <Image
+                          src={s.image}
+                          alt={s.alt ?? ""}
+                          fill
+                          className="object-cover object-center"
+                          sizes="(max-width: 768px) 90vw, 380px"
+                        />
+                      </div>
+                    )}
                     <p className="mt-3 text-[var(--color-ink-soft)] leading-relaxed">
                       {s.body}
                     </p>
@@ -454,28 +697,54 @@ export default function Page() {
                   title: "Advanced diagnostics",
                   body:
                     "Beyond standard labs: hormones, cardiometabolic markers, nutrient panels, inflammation, gut health.",
+                  image: "/img/tile-diagnostics.jpg",
+                  alt: "Lab markers and diagnostics on a tablet — measuring before treating.",
+                  icon: <IconMicroscope className="w-6 h-6" />,
                 },
                 {
                   title: "GainsWave shockwave",
                   body:
                     "Low-intensity acoustic-wave therapy that stimulates new blood-vessel growth and restores function naturally.",
+                  image: "/img/tile-shockwave.jpg",
+                  alt: "GainsWave shockwave therapy device — non-invasive acoustic wave treatment.",
+                  icon: <IconSoundwave className="w-6 h-6" />,
                 },
                 {
                   title: "Hormone optimization",
                   body:
                     "Testosterone, thyroid, and endocrine support — bioidentical and dialed to your biology, not a template.",
+                  image: "/img/tile-hormone.jpg",
+                  alt: "Clinical blood vials in a lab tray — bioidentical hormone testing.",
+                  icon: <IconHelix className="w-6 h-6" />,
                 },
                 {
                   title: "Ongoing partnership",
                   body:
                     "Dr. Uslar monitors progress, adjusts your protocol, and stays available long after the first visit.",
+                  image: "/img/tile-partnership.jpg",
+                  alt: "A handshake between physician and patient — long-term partnership in your care.",
+                  icon: <IconHandshake className="w-6 h-6" />,
                 },
               ].map((it, i) => (
                 <Reveal key={it.title} delay={i * 60}>
                   <article className="bg-[var(--color-teal)] p-7 sm:p-8 h-full">
-                    <p className="font-display text-[var(--color-gold-soft)] text-2xl font-semibold mb-3">
-                      {String(i + 1).padStart(2, "0")}
-                    </p>
+                    {/* P3 #4 — photographic icon tile */}
+                    <div className="relative aspect-square rounded-lg overflow-hidden mb-5 bg-white/10">
+                      <Image
+                        src={it.image}
+                        alt={it.alt}
+                        fill
+                        className="object-cover object-center"
+                        sizes="(max-width: 640px) 90vw, (max-width: 1024px) 50vw, 280px"
+                      />
+                    </div>
+                    {/* P4 — custom line-icon + step number on dark teal band */}
+                    <div className="flex items-center gap-3 mb-3 text-[var(--color-gold-bright)]">
+                      {it.icon}
+                      <span className="font-display text-xl font-semibold">
+                        {String(i + 1).padStart(2, "0")}
+                      </span>
+                    </div>
                     <h3 className="text-white font-semibold text-lg mb-3">
                       {it.title}
                     </h3>
@@ -530,8 +799,12 @@ export default function Page() {
                 },
               ].map((t, i) => (
                 <Reveal key={t.name} delay={i * 80}>
-                  <figure className="h-full bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl p-7 sm:p-8 shadow-[0_8px_24px_-18px_rgba(7,64,63,0.25)]">
-                    <div className="flex gap-0.5 mb-5" aria-label="5 stars">
+                  <figure className="relative h-full bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl p-7 sm:p-8 shadow-[0_8px_24px_-18px_rgba(7,64,63,0.25)]">
+                    {/* P4 — quote glyph (gold serif italic, low-opacity) */}
+                    <span className="quote-glyph" aria-hidden="true">
+                      &ldquo;
+                    </span>
+                    <div className="relative flex gap-0.5 mb-5" aria-label="5 stars">
                       {[...Array(5)].map((_, j) => (
                         <StarIcon key={j} />
                       ))}
@@ -598,6 +871,17 @@ export default function Page() {
 
         {/* ── Closing CTA + form ────────────────────────────── */}
         <section id="consult" className="bg-[var(--color-teal)] text-white">
+          {/* P3 #5 — masculine context image, full-bleed strip above the grid */}
+          <div className="relative aspect-[21/7] sm:aspect-[21/6] overflow-hidden bg-[var(--color-teal-dark)]">
+            <Image
+              src="/img/consult-call.jpg"
+              alt="A man taking a private phone call in his office — a discreet consultation, no judgment."
+              fill
+              className="object-cover object-[center_30%]"
+              sizes="100vw"
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[var(--color-teal)]" aria-hidden="true" />
+          </div>
           <div className="max-w-6xl mx-auto px-5 sm:px-8 py-16 sm:py-24">
             <div className="grid md:grid-cols-2 gap-10 lg:gap-16 items-start">
               <Reveal>

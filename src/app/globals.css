@@ -15,8 +15,10 @@
   --color-cream: #FBF6EC;           /* warm cream — primary surface */
   --color-cream-deep: #F5EDDC;      /* slightly deeper cream for sections */
   --color-surface: #FFFFFF;
-  --color-gold: #B89653;            /* muted bronze-gold (was punchy amber) */
-  --color-gold-soft: #D8B97A;
+  --color-gold: #8C6D2F;            /* darker bronze — AA contrast on cream (was #B89653, ~2.7:1) */
+  --color-gold-soft: #B89653;        /* lighter bronze (prior --color-gold) — use on dark teal only */
+  --color-gold-bright: #D8B97A;      /* highlight on dark teal bands */
+  --color-crimson: #A51C30;          /* HMS-inspired accent (NOT the real HMS mark) */
   --color-border: #E7DFCF;          /* warm border line */
 
   --font-display: "Lora", "Source Serif Pro", Georgia, serif;
@@ -168,7 +170,7 @@ a:hover { color: var(--color-gold); }
 }
 .btn-ghost:hover { color: var(--color-teal-dark); background: var(--color-teal-tint); }
 
-/* ---------- Section eyebrow ---------- */
+/* ---------- Section eyebrow w/ leading hairline (P4) ---------- */
 .eyebrow {
   font-family: var(--font-body);
   font-size: 0.72rem;
@@ -176,7 +178,19 @@ a:hover { color: var(--color-gold); }
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--color-gold);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
 }
+.eyebrow::before {
+  content: "";
+  width: 1.75rem;
+  height: 2px;
+  background: currentColor;
+  display: inline-block;
+  flex: 0 0 auto;
+}
+.eyebrow-dark { color: var(--color-gold-bright); }
 
 /* Decorative hairline */
 .hr-rule {
@@ -185,6 +199,69 @@ a:hover { color: var(--color-gold); }
   background: var(--color-gold);
   display: inline-block;
 }
+
+/* ---------- Quote glyph for testimonial cards (P4) ---------- */
+.quote-glyph {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 4rem;
+  line-height: 0.6;
+  color: var(--color-gold-soft);
+  opacity: 0.35;
+  position: absolute;
+  top: 1.25rem;
+  left: 1.5rem;
+  user-select: none;
+}
+
+/* ---------- Sequence rail for #how-it-works (P4) ---------- */
+.step-num {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 2.5rem;
+  line-height: 1;
+  color: var(--color-gold);
+  letter-spacing: -0.02em;
+  display: block;
+}
+.step-rule {
+  display: block;
+  width: 3rem;
+  height: 2px;
+  background: var(--color-gold);
+  margin: 0.75rem 0 1rem;
+}
+
+/* ---------- Credential mini-card (P2) ---------- */
+.cred-card {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+  padding: 0.6rem 0.85rem;
+}
+.cred-card-dark {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+.cred-card-label {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-teal);
+  line-height: 1.1;
+}
+.cred-card-dark .cred-card-label { color: var(--color-gold-bright); }
+.cred-card-sub {
+  font-size: 0.7rem;
+  color: var(--color-ink-mute);
+  line-height: 1.2;
+  margin-top: 1px;
+}
+.cred-card-dark .cred-card-sub { color: rgba(255,255,255,0.65); }
 
 /* ---------- Hero grain texture (very subtle, no images) ---------- */
 .grain {
