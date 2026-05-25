@@ -23,7 +23,14 @@
   --font-body: "Inter", system-ui, -apple-system, sans-serif;
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+/* Wrapped in @layer base so Tailwind v4 utilities (mx-auto etc.) in
+   @layer utilities can still override this reset. Unlayered rules beat
+   ALL layered rules in the cascade — the previous unlayered universal
+   reset zeroed every mx-auto on the page and pinned containers to the
+   left at desktop. (Director ruling 2026-05-25 20:28.) */
+@layer base {
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+}
 
 html {
   scroll-behavior: smooth;
