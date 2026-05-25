@@ -34,33 +34,36 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 }
 
-html {
-  scroll-behavior: smooth;
-  scroll-padding-top: 5rem;
-  -webkit-text-size-adjust: 100%;
+@layer base {
+  /* Wrap typography/element defaults in @layer base so Tailwind utilities
+     in @layer utilities can override them (e.g. `text-white` on a heading
+     inside a dark teal section). Previously these were unlayered and won
+     against text-white, making H2/H3/H4 invisible on the teal bands
+     (teal-on-teal, 1.00:1). Peter caught this 2026-05-25 21:54. */
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 5rem;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    font-family: var(--font-body);
+    color: var(--color-ink);
+    background: var(--color-cream);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    line-height: 1.55;
+  }
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.018em;
+    color: var(--color-teal);
+    line-height: 1.12;
+  }
+  h1 { letter-spacing: -0.028em; }
+  p { line-height: 1.65; }
+  a { color: inherit; text-decoration: none; }
+  a:hover { color: var(--color-gold); }
 }
-
-body {
-  font-family: var(--font-body);
-  color: var(--color-ink);
-  background: var(--color-cream);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  line-height: 1.55;
-}
-
-h1, h2, h3, h4 {
-  font-family: var(--font-display);
-  letter-spacing: -0.018em;
-  color: var(--color-teal);
-  line-height: 1.12;
-}
-h1 { letter-spacing: -0.028em; }
-
-p { line-height: 1.65; }
-
-a { color: inherit; text-decoration: none; }
-a:hover { color: var(--color-gold); }
 
 *:focus-visible {
   outline: 2px solid var(--color-gold);
