@@ -109,14 +109,14 @@ export default function Page() {
       {/* ── Header ─────────────────────────────────────────── */}
       <header className="sticky top-0 z-40 bg-[var(--color-cream)]/90 backdrop-blur supports-[backdrop-filter]:bg-[var(--color-cream)]/80 border-b border-[var(--color-border)]">
         <div className="max-w-6xl mx-auto px-5 sm:px-8 py-4 flex items-center justify-between">
-          <a href="#hero" className="relative h-8 sm:h-9 w-36 sm:w-44 block" aria-label="Transformity Health">
+          <a href="#hero" className="relative h-9 sm:h-11 w-44 sm:w-56 block" aria-label="Transformity Health">
             <Image
               src="/logo.png"
               alt="Transformity Health"
               fill
               className="object-contain object-left"
               priority
-              sizes="200px"
+              sizes="240px"
             />
           </a>
           <div className="flex items-center gap-2 sm:gap-4">
