@@ -473,8 +473,16 @@ export function LeadForm({ variant = "hero", headline, subhead }: LeadFormProps)
 
       <div className="mt-4">
         <label htmlFor={id("investmentReady")} className={labelCls}>
-          ED treatments at Transformity Health are a cash-pay investment that can cost several thousand dollars. Are you open to investing in a personalized, root-cause solution? Financing is available through Cherry &amp; CareCredit.
+          How are you planning to invest in your care?
         </label>
+        <p
+          id={id("investmentReady") + "-help"}
+          className={`text-xs leading-snug mb-2 ${isHero ? "text-gray-500" : "text-white/60"}`}
+        >
+          ED treatments at Transformity Health are a cash-pay investment that
+          can cost several thousand dollars. Financing is available through
+          Cherry &amp; CareCredit.
+        </p>
         <select
           ref={(el) => {
             fieldRefs.current.investmentReady = el;
@@ -487,7 +495,11 @@ export function LeadForm({ variant = "hero", headline, subhead }: LeadFormProps)
           onBlur={(e) => markTouched("investmentReady", e.target.value)}
           disabled={submitting}
           aria-invalid={showErr("investmentReady") || undefined}
-          aria-describedby={showErr("investmentReady") ? errId("investmentReady") : undefined}
+          aria-describedby={
+            showErr("investmentReady")
+              ? `${errId("investmentReady")} ${id("investmentReady")}-help`
+              : `${id("investmentReady")}-help`
+          }
         >
           <option value="" disabled>
             Select an option…

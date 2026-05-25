@@ -162,7 +162,7 @@ export default function Page() {
                 "radial-gradient(circle at 20% 20%, rgba(201,168,76,0.45) 0%, transparent 45%), radial-gradient(circle at 85% 70%, rgba(13,94,92,0.7) 0%, transparent 50%)",
             }}
           />
-          <div className="relative max-w-6xl mx-auto px-4 py-14 md:py-20">
+          <div className="relative max-w-6xl mx-auto px-4 py-10 md:py-20">
             <div className="grid md:grid-cols-12 gap-10 md:gap-14 items-center">
               <div className="md:col-span-7">
                 <div className="inline-flex items-center gap-2 bg-amber-500/15 border border-amber-400/30 rounded-full px-3.5 py-1.5 mb-6">
@@ -186,22 +186,26 @@ export default function Page() {
                   pill-free treatment plan.
                 </p>
                 <ul className="space-y-3 mb-8 max-w-lg">
-                  {[
-                    "GainsWave shockwave therapy with documented 60–80% success rates",
-                    "Hormone, gut health & metabolic optimization",
-                    "Advanced bloodwork and biomarker testing",
-                    "No quick fixes — real, lasting results, no pill dependency",
-                  ].map((item) => (
-                    <li key={item} className="flex items-start gap-3">
+                  {(
+                    [
+                      { text: "GainsWave shockwave therapy with documented 60–80% success rates", mobile: true },
+                      { text: "Hormone, gut health & metabolic optimization", mobile: true },
+                      { text: "Advanced bloodwork and biomarker testing", mobile: true },
+                      // M2: cut the 4th bullet on mobile — duplicates the paragraph above.
+                      { text: "No quick fixes — real, lasting results, no pill dependency", mobile: false },
+                    ] as { text: string; mobile: boolean }[]
+                  ).map((item) => (
+                    <li key={item.text} className={`items-start gap-3 ${item.mobile ? "flex" : "hidden sm:flex"}`}>
                       <span className="mt-0.5 shrink-0 w-5 h-5 rounded-full bg-amber-400/20 border border-amber-400/40 flex items-center justify-center text-amber-300">
                         <CheckIcon className="w-3 h-3" />
                       </span>
-                      <span className="text-white/85 text-[0.97rem]">{item}</span>
+                      <span className="text-white/85 text-[0.97rem]">{item.text}</span>
                     </li>
                   ))}
                 </ul>
                 <div className="flex flex-wrap items-center gap-6">
-                  <div className="flex items-center gap-3">
+                  {/* M2: hide avatar pile on mobile — the 5-star + review-count line carries the same signal. */}
+                  <div className="hidden sm:flex items-center gap-3">
                     <div className="flex -space-x-2">
                       {["D", "M", "J", "A"].map((c) => (
                         <div
@@ -213,14 +217,17 @@ export default function Page() {
                         </div>
                       ))}
                     </div>
-                    <div>
-                      <div className="flex gap-0.5" aria-label="5 out of 5 stars">
-                        {[...Array(5)].map((_, i) => (
-                          <StarIcon key={i} className="w-4 h-4 text-amber-400" />
-                        ))}
-                      </div>
-                      <p className="text-white/65 text-xs mt-0.5">207 Google reviews · 5.0 rating</p>
+                  </div>
+                  {/* Star + review-count line — shown on all widths. */}
+                  <div>
+                    <div className="flex gap-0.5" aria-label="5 out of 5 stars">
+                      {[...Array(5)].map((_, i) => (
+                        <StarIcon key={i} className="w-4 h-4 text-amber-400" />
+                      ))}
                     </div>
+                    <p className="text-white/65 text-xs mt-0.5">
+                      207 Google reviews · 5.0 rating
+                    </p>
                   </div>
                   <a
                     href="tel:9177044886"
@@ -240,7 +247,7 @@ export default function Page() {
         </section>
 
         {/* ── Trust Bar ── */}
-        <section id="credentials" className="bg-[#052e2d] py-6 border-b border-amber-500/20">
+        <section id="credentials" className="bg-[#052e2d] py-8 md:py-6 border-b border-amber-500/20">
           <div className="max-w-6xl mx-auto px-4">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
               {[
@@ -251,7 +258,9 @@ export default function Page() {
               ].map((item) => (
                 <div key={item.label}>
                   <p className="text-amber-400 font-bold text-xl sm:text-2xl">{item.stat}</p>
-                  <p className="text-white/65 text-xs mt-0.5 uppercase tracking-wide">{item.label}</p>
+                  <p className="text-white/65 text-[0.7rem] sm:text-xs mt-1 uppercase tracking-wide">
+                    {item.label}
+                  </p>
                 </div>
               ))}
             </div>
@@ -283,7 +292,7 @@ export default function Page() {
               </div>
             </Reveal>
 
-            <div className="grid md:grid-cols-2 gap-8 items-stretch">
+            <div className="grid md:grid-cols-2 gap-6 md:gap-8 items-stretch">
               <Reveal>
                 <div className="bg-red-50/60 border border-red-100 rounded-2xl p-7 h-full">
                   <div className="flex items-center gap-3 mb-4">
@@ -337,7 +346,7 @@ export default function Page() {
         {/* ── Meet Dr. Liv ── */}
         <section id="meet-dr-liv" className="py-16 md:py-24 bg-[#FEF9EE]">
           <div className="max-w-6xl mx-auto px-4">
-            <div className="grid md:grid-cols-5 gap-10 md:gap-14 items-center">
+            <div className="grid md:grid-cols-5 gap-14 md:gap-14 items-center">
               <Reveal className="md:col-span-2">
                 <div className="relative max-w-sm mx-auto md:mx-0">
                   <div className="relative rounded-2xl overflow-hidden aspect-[3/4] shadow-xl bg-[#07403F]/10">
@@ -359,7 +368,7 @@ export default function Page() {
               </Reveal>
 
               <Reveal className="md:col-span-3" delay={100}>
-                <div>
+                <div className="pt-4 md:pt-0">
                   <p className="text-amber-600 font-semibold text-sm uppercase tracking-widest mb-3">
                     Meet your physician
                   </p>
@@ -381,18 +390,18 @@ export default function Page() {
                     &mdash; no rotating staff, no sales reps &mdash; and builds individualized
                     protocols based on your specific biology.
                   </p>
-                  <ul className="grid sm:grid-cols-2 gap-x-6 gap-y-2.5">
+                  <ul className="grid grid-cols-2 sm:grid-cols-2 gap-x-4 sm:gap-x-6 gap-y-2">
                     {[
-                      "Harvard Medical School research fellow",
-                      "Board Certified, American Board of Internal Medicine",
-                      "Certified in GainsWave protocols",
-                      "Licensed in 5 states: FL, NY, NJ, AZ, PA",
-                      "Functional medicine training (root-cause care)",
-                      "207 Google reviews, perfect 5.0 rating",
+                      "Harvard research fellow",
+                      "ABIM board certified",
+                      "GainsWave certified",
+                      "Licensed in FL, NY, NJ, AZ, PA",
+                      "Functional medicine trained",
+                      "5.0 ★ on 207 reviews",
                     ].map((it) => (
-                      <li key={it} className="flex items-start gap-2.5">
+                      <li key={it} className="flex items-start gap-2">
                         <CheckIcon className="w-4 h-4 mt-1 text-amber-500 shrink-0" />
-                        <span className="text-gray-700 text-sm">{it}</span>
+                        <span className="text-gray-700 text-[0.85rem] sm:text-sm leading-snug">{it}</span>
                       </li>
                     ))}
                   </ul>
@@ -424,7 +433,7 @@ export default function Page() {
               </div>
             </Reveal>
 
-            <div className="grid md:grid-cols-3 gap-6 mb-12">
+            <div className="grid md:grid-cols-3 gap-6 mb-14">
               {[
                 {
                   step: "01",
@@ -454,7 +463,7 @@ export default function Page() {
               ))}
             </div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {[
                 {
                   icon: <MicroscopeIcon />,
@@ -530,7 +539,7 @@ export default function Page() {
                 },
               ].map((t, i) => (
                 <Reveal key={t.name} delay={i * 80}>
-                  <figure className="bg-white/[0.06] backdrop-blur-sm border border-white/15 rounded-2xl p-6 h-full">
+                  <figure className="bg-white/[0.10] backdrop-blur-sm border border-white/20 rounded-2xl p-7 h-full">
                     <div className="flex gap-0.5 mb-4" aria-label="5 stars">
                       {[...Array(5)].map((_, j) => (
                         <StarIcon key={j} />
@@ -574,7 +583,7 @@ export default function Page() {
                   </p>
                 </div>
                 <div className="md:col-span-5">
-                  <div className="grid grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                     {[
                       { label: "Cherry", sub: "0% APR" },
                       { label: "CareCredit", sub: "Plans available" },
@@ -715,7 +724,7 @@ export default function Page() {
       </main>
 
       {/* ── Footer ── */}
-      <footer id="contact" className="bg-[#052e2d] text-white pt-14 pb-10">
+      <footer id="contact" className="bg-[#052e2d] text-white pt-14 pb-24 md:pb-10">
         <div className="max-w-6xl mx-auto px-4">
           <div className="grid md:grid-cols-3 gap-10 mb-10">
             <div>

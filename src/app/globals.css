@@ -120,5 +120,6 @@ h1 { letter-spacing: -0.024em; }
 }
 
 @media (max-width: 640px) {
-  h1 { line-height: 1.08; }
+  /* M10 — loosen H1 tracking at narrow widths so characters don't collide */
+  h1 { line-height: 1.08; letter-spacing: -0.012em; }
 }
