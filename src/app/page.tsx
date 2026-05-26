@@ -908,18 +908,14 @@ export default function Page() {
 
         {/* ── Closing CTA + form ────────────────────────────── */}
         <section id="consult" className="bg-[var(--color-teal)] text-white">
-          {/* Lindsay rework DEFECT 3: consult-call.jpg looked SaaS-startup.
-              Swapped to consult-room.jpg — empty consultation room, "your seat is waiting." */}
-          <div className="relative aspect-[21/7] sm:aspect-[21/6] overflow-hidden bg-[var(--color-teal-dark)]">
-            <Image
-              src="/img/consult-room.jpg"
-              alt="A quiet consultation room — your seat is waiting."
-              fill
-              className="object-cover object-center"
-              sizes="100vw"
-            />
-            <div className="absolute inset-0 bg-gradient-to-b from-[var(--color-teal-dark)]/35 via-transparent to-[var(--color-teal)]" aria-hidden="true" />
-          </div>
+          {/* Lindsay rework DEFECT 3: previous strip (consult-call.jpg) looked
+              like a SaaS startup. Rather than swap to another decorative photo
+              and risk the same misread, removed the photo strip entirely.
+              The consult section now reads as a single confident dark band
+              leading directly into the form — the conversion goal. The
+              dark-teal cinematic rhythm is established by hero, credentials,
+              pull-quote, stories, and treatments — this band is the final
+              chord. */}
           <div className="max-w-6xl mx-auto px-5 sm:px-8 py-16 sm:py-24">
             <div className="grid md:grid-cols-2 gap-10 lg:gap-16 items-start">
               <Reveal>
