@@ -308,115 +308,127 @@ export default function Page() {
 
       <main>
         {/* ── Hero ──────────────────────────────────────────── */}
-        <section id="hero" className="relative overflow-hidden">
-          <div className="grain absolute inset-0" aria-hidden="true" />
-          <div className="relative max-w-6xl mx-auto px-5 sm:px-8 pt-12 sm:pt-20 pb-10 sm:pb-20">
-            <div className="grid lg:grid-cols-12 gap-10 lg:gap-16 items-center">
-              {/* Editorial copy column */}
-              <div className="lg:col-span-7">
-                <Reveal>
-                  {/* Masculine hero strip (P3 #1) — cinematic 16:5 above the headline */}
-                  <div className="relative aspect-[16/5] sm:aspect-[16/5] rounded-2xl overflow-hidden mb-7 sm:mb-9 bg-[var(--color-teal)]/10 shadow-[0_18px_40px_-30px_rgba(7,64,63,0.40)]">
-                    <Image
-                      src="/img/hero-man.jpg"
-                      alt="A man in his fifties looking pensively out a window — taking the next step for his health."
-                      fill
-                      className="object-cover object-[center_30%]"
-                      sizes="(max-width: 1024px) 100vw, 720px"
-                      priority
-                    />
-                  </div>
-                  <span className="eyebrow">
-                    Functional medicine for men · Hallandale Beach, FL
-                  </span>
-                  <h1 className="mt-5 text-[2rem] sm:text-[2.75rem] lg:text-[3.5rem] font-bold">
-                    A real conversation
-                    <br className="hidden sm:block" /> about ED &mdash;
-                    <span className="block text-[var(--color-gold)] font-display italic font-semibold">
-                      and what&rsquo;s really causing it.
-                    </span>
-                  </h1>
-                  <p className="mt-6 measure text-[1.05rem] sm:text-[1.15rem] text-[var(--color-ink-soft)]">
-                    Most clinics hand you a pill and move on. We take the time to
-                    find out <em>why</em> &mdash; through advanced diagnostics,
-                    GainsWave shockwave therapy, and personalized hormone and
-                    metabolic protocols designed by a Harvard-trained physician.
-                  </p>
-                  <div className="mt-8 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-5">
-                    <a href="#consult" className="btn-primary">
-                      Request a Free Consultation
-                      <ArrowRight className="w-4 h-4" />
-                    </a>
-                    <a href="tel:9177044886" className="btn-ghost">
-                      <PhoneIcon className="w-4 h-4" />
-                      Or call 917-704-4886
-                    </a>
-                  </div>
-                  <div className="mt-10 flex items-center gap-3 text-[var(--color-ink-soft)]">
-                    <div className="flex gap-0.5" aria-label="5 out of 5 stars">
-                      {[...Array(5)].map((_, i) => (
-                        <StarIcon key={i} />
-                      ))}
-                    </div>
-                    <p className="text-sm">
-                      <span className="font-semibold text-[var(--color-ink)]">5.0</span> · 207 Google reviews
-                    </p>
-                  </div>
-                </Reveal>
-              </div>
+        {/*
+          Lindsay rework 2026-05-26 — DEFECT 1:
+          Hero converted to full-bleed cinematic dark band (brief Option A).
+          Removed: stacked /img/hero-man.jpg strip + right-column Dr Liv
+          portrait (Dr Liv stays prominent in #meet-dr-liv where she belongs).
+          Headline + copy + CTAs sit on top of a dramatic salt-and-pepper
+          portrait at /img/hero-bg.jpg with a strong dark-teal gradient overlay
+          for legibility. The credibility shield row (HMS/ABIM/GainsWave)
+          continues to live in #credentials immediately below.
+        */}
+        <section
+          id="hero"
+          className="relative overflow-hidden bg-[var(--color-teal-dark)] text-white"
+        >
+          {/* Full-bleed cinematic background */}
+          <div className="absolute inset-0" aria-hidden="true">
+            <Image
+              src="/img/hero-bg.jpg"
+              alt=""
+              fill
+              className="object-cover object-[68%_30%] sm:object-[72%_30%]"
+              sizes="100vw"
+              priority
+            />
+            {/* Dark gradient overlay — keeps headline + CTAs readable on left */}
+            <div
+              className="absolute inset-0"
+              style={{
+                background:
+                  "linear-gradient(90deg, rgba(5,46,45,0.94) 0%, rgba(5,46,45,0.82) 38%, rgba(5,46,45,0.52) 65%, rgba(5,46,45,0.22) 100%)",
+              }}
+            />
+            {/* Subtle top + bottom vignette for editorial finish */}
+            <div
+              className="absolute inset-0"
+              style={{
+                background:
+                  "linear-gradient(180deg, rgba(5,46,45,0.30) 0%, transparent 24%, transparent 72%, rgba(5,46,45,0.55) 100%)",
+              }}
+            />
+          </div>
 
-              {/* Doctor portrait */}
-              <Reveal className="lg:col-span-5" delay={100}>
-                <div id="doctor-hero-portrait" className="relative max-w-sm lg:max-w-none mx-auto">
-                  <div className="relative aspect-[4/5] rounded-2xl overflow-hidden bg-[var(--color-teal)]/8 shadow-[0_30px_60px_-30px_rgba(7,64,63,0.35)]">
-                    <Image
-                      src="/dr-liv.webp"
-                      alt="Dr. Liubou (Liv) Uslar, MD/PhD — Founder, Transformity Health"
-                      fill
-                      className="object-cover object-center"
-                      sizes="(max-width: 1024px) 80vw, 460px"
-                      priority
-                    />
+          <div className="relative max-w-6xl mx-auto px-5 sm:px-8 pt-14 sm:pt-24 pb-16 sm:pb-28 min-h-[78vh] sm:min-h-[640px] flex items-center">
+            <div className="max-w-2xl">
+              <Reveal>
+                <span className="eyebrow eyebrow-dark">
+                  Functional medicine for men · Hallandale Beach, FL
+                </span>
+                <h1 className="mt-5 text-[2.1rem] sm:text-[3rem] lg:text-[3.75rem] font-bold text-white">
+                  A real conversation
+                  <br className="hidden sm:block" /> about ED &mdash;
+                  <span className="block text-[var(--color-gold-soft)] font-display italic font-semibold">
+                    and what&rsquo;s really causing it.
+                  </span>
+                </h1>
+                <p className="mt-6 measure text-[1.05rem] sm:text-[1.15rem] text-white/90">
+                  Most clinics hand you a pill and move on. We take the time to
+                  find out <em>why</em> &mdash; through advanced diagnostics,
+                  GainsWave shockwave therapy, and personalized hormone and
+                  metabolic protocols designed by a Harvard-trained physician.
+                </p>
+                <div className="mt-8 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-5">
+                  <a href="#consult" className="btn-primary">
+                    Request a Free Consultation
+                    <ArrowRight className="w-4 h-4" />
+                  </a>
+                  <a
+                    href="tel:9177044886"
+                    className="btn-ghost text-white hover:text-[var(--color-gold-bright)]"
+                  >
+                    <PhoneIcon className="w-4 h-4" />
+                    Or call 917-704-4886
+                  </a>
+                </div>
+                <div className="mt-10 flex items-center gap-3 text-white/80">
+                  <div className="flex gap-0.5" aria-label="5 out of 5 stars">
+                    {[...Array(5)].map((_, i) => (
+                      <StarIcon key={i} />
+                    ))}
                   </div>
-                  <figcaption className="mt-4 sm:absolute sm:-bottom-6 sm:-left-6 sm:mt-0 sm:bg-[var(--color-teal)] sm:text-white sm:rounded-xl sm:p-4 sm:shadow-xl sm:max-w-[230px]">
-                    <p className="text-[var(--color-gold)] sm:text-[var(--color-gold-soft)] font-semibold text-sm">
-                      Dr. Liv Uslar, MD/PhD
-                    </p>
-                    <p className="text-[var(--color-ink-soft)] sm:text-white/75 text-xs mt-1 leading-snug">
-                      Harvard-trained · Board Certified Internal Medicine · Functional Medicine
-                    </p>
-                  </figcaption>
+                  <p className="text-sm">
+                    <span className="font-semibold text-white">5.0</span> · 207 Google reviews
+                  </p>
                 </div>
               </Reveal>
             </div>
           </div>
         </section>
 
-        {/* ── Trust strip (subtle, lives between hero and editorial content) ── */}
-        <section id="credentials" aria-label="Credentials" className="border-y border-[var(--color-border)] bg-[var(--color-cream-deep)]/60">
-          <div className="max-w-6xl mx-auto px-5 sm:px-8 py-8 sm:py-10">
-            {/* Credibility row (P2) — HMS / ABIM / GainsWave credential cards */}
+        {/* ── Trust strip — Lindsay rework: cream-deep → dark teal for editorial weight ── */}
+        <section
+          id="credentials"
+          aria-label="Credentials"
+          className="bg-[var(--color-teal-dark)] text-white border-b border-white/10"
+        >
+          <div className="max-w-6xl mx-auto px-5 sm:px-8 py-10 sm:py-12">
+            {/* Credibility row (P2) — HMS / ABIM / GainsWave credential cards (dark variant) */}
             <Reveal>
-              <div className="flex flex-wrap items-stretch justify-center gap-3 sm:gap-4 mb-7 sm:mb-9">
+              <div className="flex flex-wrap items-stretch justify-center gap-3 sm:gap-4 mb-8 sm:mb-10">
                 <CredCard
                   shield={<ShieldHarvard className="w-7 h-7" />}
                   title="Harvard Medical School"
                   sub="Research Fellow Alumna"
+                  dark
                 />
                 <CredCard
                   shield={<ShieldABIM className="w-7 h-7" />}
                   title="ABIM Board Certified"
                   sub="Internal Medicine"
+                  dark
                 />
                 <CredCard
                   shield={<ShieldGainsWave className="w-7 h-7" />}
                   title="GainsWave Certified"
                   sub="Shockwave Provider"
+                  dark
                 />
               </div>
             </Reveal>
 
-            <div className="border-t border-[var(--color-border)] pt-7 sm:pt-8" aria-hidden="true" />
+            <div className="border-t border-white/15 pt-8 sm:pt-9" aria-hidden="true" />
             <ul className="grid grid-cols-2 md:grid-cols-4 gap-y-5 gap-x-6 text-center">
               {[
                 { stat: "5.0", suffix: "★", label: "Google rating", icon: <MiniStar className="w-4 h-4" /> },
@@ -426,16 +438,16 @@ export default function Page() {
               ].map((it) => (
                 <li key={it.label}>
                   <span
-                    className="inline-flex items-center justify-center mb-2 text-[var(--color-gold)]"
+                    className="inline-flex items-center justify-center mb-2 text-[var(--color-gold-bright)]"
                     aria-hidden="true"
                   >
                     {it.icon}
                   </span>
-                  <p className="font-display text-[var(--color-teal)] text-xl sm:text-2xl font-semibold">
+                  <p className="font-display text-white text-xl sm:text-2xl font-semibold">
                     {it.stat}
-                    <span className="text-[var(--color-gold)]">{it.suffix}</span>
+                    <span className="text-[var(--color-gold-bright)]">{it.suffix}</span>
                   </p>
-                  <p className="text-[var(--color-ink-mute)] text-[0.72rem] sm:text-xs tracking-wider uppercase mt-1.5">
+                  <p className="text-white/65 text-[0.72rem] sm:text-xs tracking-wider uppercase mt-1.5">
                     {it.label}
                   </p>
                 </li>
@@ -591,6 +603,21 @@ export default function Page() {
           </div>
         </section>
 
+        {/* ── Pull-quote band — Lindsay rework: dark teal break between cream sections ── */}
+        <section
+          aria-hidden="true"
+          className="bg-[var(--color-teal-dark)] text-white"
+        >
+          <div className="max-w-6xl mx-auto px-5 sm:px-8 py-6 sm:py-7">
+            <p className="text-center font-display text-[1rem] sm:text-[1.2rem] leading-snug">
+              <span className="italic font-semibold text-[var(--color-gold-bright)]">
+                60&ndash;80% of men
+              </span>{" "}
+              see measurable improvement with GainsWave shockwave therapy.
+            </p>
+          </div>
+        </section>
+
         {/* ── How treatment works ───────────────────────────── */}
         <section id="how-it-works" className="py-16 sm:py-24">
           <div className="max-w-6xl mx-auto px-5 sm:px-8">
@@ -609,6 +636,7 @@ export default function Page() {
             </Reveal>
 
             {/* P4 — sequence rail: thin gold hairline running through all three steps on desktop */}
+            {/* Lindsay rework DEFECT 2: every step has an image (3-of-3 consistency) */}
             <ol className="mt-14 space-y-10 md:space-y-0 md:grid md:grid-cols-3 md:gap-10 lg:gap-14 relative md:pl-0">
               {[
                 {
@@ -616,20 +644,24 @@ export default function Page() {
                   title: "Diagnose the root cause",
                   body:
                     "Hormone panels, cardiovascular markers, metabolic and inflammation labs, gut testing when relevant. We measure, we don't guess.",
+                  image: "/img/step-diagnose.jpg",
+                  alt: "Clinical blood draw with a butterfly needle — measuring before treating.",
                 },
                 {
                   step: "02",
                   title: "Design a personal protocol",
                   body:
                     "GainsWave shockwave therapy, hormone optimization, peptides, nutrition coaching, and lifestyle work — chosen for your specific case.",
-                  image: "/img/step-consult.jpg",
-                  alt: "Doctor and male patient reviewing labs together — a real conversation about your protocol.",
+                  image: "/img/step-protocol.jpg",
+                  alt: "A physician reviewing a personalized treatment protocol on a tablet — sci-fi-clinical, not generic.",
                 },
                 {
                   step: "03",
                   title: "Track real progress",
                   body:
                     "Repeat diagnostics and one-on-one time with Dr. Uslar so adjustments are evidence-based and the results last.",
+                  image: "/img/step-progress.jpg",
+                  alt: "A confident man walking outdoors in golden-hour light — the look of a man who got his health back.",
                 },
               ].map((s) => (
                 <Reveal key={s.step}>
@@ -758,19 +790,19 @@ export default function Page() {
           </div>
         </section>
 
-        {/* ── Patient stories ───────────────────────────────── */}
-        <section id="stories" className="py-16 sm:py-24">
+        {/* ── Patient stories — Lindsay rework: cream → dark teal, matches #treatments ── */}
+        <section id="stories" className="bg-[var(--color-teal)] text-white py-16 sm:py-24">
           <div className="max-w-6xl mx-auto px-5 sm:px-8">
             <Reveal>
               <div className="max-w-2xl mb-12">
-                <span className="eyebrow">Patient stories</span>
-                <h2 className="mt-4 text-3xl sm:text-[2.5rem] font-bold">
+                <span className="eyebrow eyebrow-dark">Patient stories</span>
+                <h2 className="mt-4 text-3xl sm:text-[2.5rem] font-bold text-white">
                   Real men.{" "}
-                  <span className="italic font-display text-[var(--color-gold)]">
+                  <span className="italic font-display text-[var(--color-gold-bright)]">
                     Real results.
                   </span>
                 </h2>
-                <p className="mt-5 text-[var(--color-ink-soft)] max-w-xl">
+                <p className="mt-5 text-white/80 max-w-xl">
                   207 five-star Google reviews and counting. A few of the most
                   recent.
                 </p>
@@ -799,26 +831,31 @@ export default function Page() {
                 },
               ].map((t, i) => (
                 <Reveal key={t.name} delay={i * 80}>
-                  <figure className="relative h-full bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl p-7 sm:p-8 shadow-[0_8px_24px_-18px_rgba(7,64,63,0.25)]">
-                    {/* P4 — quote glyph (gold serif italic, low-opacity) */}
-                    <span className="quote-glyph" aria-hidden="true">
+                  <figure className="relative h-full bg-white/5 border border-white/15 rounded-2xl p-7 sm:p-8 backdrop-blur-sm">
+                    {/* P4 — quote glyph (gold serif italic, low-opacity, dark variant) */}
+                    <span
+                      className="quote-glyph"
+                      aria-hidden="true"
+                      style={{ color: "var(--color-gold-bright)", opacity: 0.45 }}
+                    >
                       &ldquo;
                     </span>
                     <div className="relative flex gap-0.5 mb-5" aria-label="5 stars">
                       {[...Array(5)].map((_, j) => (
-                        <StarIcon key={j} />
+                        <StarIcon
+                          key={j}
+                          className="w-4 h-4 text-[var(--color-gold-bright)]"
+                        />
                       ))}
                     </div>
-                    <blockquote className="text-[var(--color-ink)] text-[0.98rem] leading-relaxed font-display italic">
+                    <blockquote className="text-white text-[0.98rem] leading-relaxed font-display italic">
                       &ldquo;{t.text}&rdquo;
                     </blockquote>
-                    <figcaption className="mt-6 pt-5 border-t border-[var(--color-border)]">
-                      <p className="text-[var(--color-teal)] font-semibold text-sm">
+                    <figcaption className="mt-6 pt-5 border-t border-white/15">
+                      <p className="text-[var(--color-gold-bright)] font-semibold text-sm">
                         {t.name}
                       </p>
-                      <p className="text-[var(--color-ink-mute)] text-xs mt-0.5">
-                        {t.loc}
-                      </p>
+                      <p className="text-white/60 text-xs mt-0.5">{t.loc}</p>
                     </figcaption>
                   </figure>
                 </Reveal>
@@ -871,16 +908,17 @@ export default function Page() {
 
         {/* ── Closing CTA + form ────────────────────────────── */}
         <section id="consult" className="bg-[var(--color-teal)] text-white">
-          {/* P3 #5 — masculine context image, full-bleed strip above the grid */}
+          {/* Lindsay rework DEFECT 3: consult-call.jpg looked SaaS-startup.
+              Swapped to consult-room.jpg — empty consultation room, "your seat is waiting." */}
           <div className="relative aspect-[21/7] sm:aspect-[21/6] overflow-hidden bg-[var(--color-teal-dark)]">
             <Image
-              src="/img/consult-call.jpg"
-              alt="A man taking a private phone call in his office — a discreet consultation, no judgment."
+              src="/img/consult-room.jpg"
+              alt="A quiet consultation room — your seat is waiting."
               fill
-              className="object-cover object-[center_30%]"
+              className="object-cover object-center"
               sizes="100vw"
             />
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[var(--color-teal)]" aria-hidden="true" />
+            <div className="absolute inset-0 bg-gradient-to-b from-[var(--color-teal-dark)]/35 via-transparent to-[var(--color-teal)]" aria-hidden="true" />
           </div>
           <div className="max-w-6xl mx-auto px-5 sm:px-8 py-16 sm:py-24">
             <div className="grid md:grid-cols-2 gap-10 lg:gap-16 items-start">
